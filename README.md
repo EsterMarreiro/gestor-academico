@@ -152,3 +152,113 @@ Composto por:
 
 Representa o endereço eletrônico de um aluno.
 
+# 🧭 Definição de Bounded Contexts
+
+Na **Plataforma de Gestão Acadêmica Simplificada**, os módulos podem ser organizados em diferentes **Bounded Contexts**, onde cada contexto possui seu próprio **modelo de domínio** e **linguagem ubíqua**.
+
+---
+
+## 👨‍🎓 1. Contexto de Alunos (Student Context)
+
+**Linguagem Ubíqua**
+
+- Aluno
+- Cadastro
+- Perfil
+- Curso
+- Informações Acadêmicas
+
+**Entidade Principal**
+
+- `Aluno`
+
+**Responsabilidades**
+
+- Gerenciar cadastro de alunos  
+- Atualizar informações acadêmicas  
+- Consultar dados do aluno  
+
+---
+
+## 📚 2. Contexto de Disciplinas (Course Context)
+
+**Linguagem Ubíqua**
+
+- Disciplina
+- Professor
+- Carga Horária
+- Turma
+
+**Entidades Principais**
+
+- `Disciplina`
+- `Período`
+
+**Responsabilidades**
+
+- Gerenciar disciplinas oferecidas  
+- Definir carga horária  
+- Organizar disciplinas por período  
+
+---
+
+## 📝 3. Contexto de Matrículas (Enrollment Context)
+
+**Linguagem Ubíqua**
+
+- Matrícula
+- Aluno Matriculado
+- Inscrição
+- Cancelamento
+
+**Entidade Principal**
+
+- `Matrícula`
+
+**Responsabilidades**
+
+- Registrar matrícula em disciplinas  
+- Controlar status da matrícula  
+- Emitir eventos de matrícula  
+
+---
+
+## 📊 4. Contexto de Avaliações (Assessment Context)
+
+**Linguagem Ubíqua**
+
+- Avaliação
+- Prova
+- Resultado
+- Nota
+
+**Entidade Principal**
+
+- `Avaliação`
+
+**Responsabilidades**
+
+- Registrar avaliações  
+- Calcular notas  
+- Consultar desempenho acadêmico  
+
+---
+
+## 🔔 5. Contexto de Notificações (Notification Context)
+
+**Linguagem Ubíqua**
+
+- Notificação
+- Mensagem
+- Alerta
+- Comunicado
+
+**Entidade Principal**
+
+- `Notificação`
+
+**Responsabilidades**
+
+- Enviar notificações aos alunos  
+- Informar novas matrículas  
+- Avisar divulgação de notas  
