@@ -1,4 +1,76 @@
- # 📚 Identificação de Entidades e Value Objects
+ # Bounded Context — Sistema de Gestão Acadêmica
+
+## Tema
+Sistema web para gestão acadêmica com controle de alunos, professores e administradores, cobrindo matrículas, turmas, notas e comunicação interna. Arquitetura em monolito modular, podendo ser migrado para microsserviços no futuro para questões de mensageria e notificações.
+
+---
+
+## Perfis de Usuário
+| Perfil | Responsabilidades |
+|---|---|
+| `ADMIN` | Gerencia usuários, cursos, turmas e relatórios |
+| `PROFESSOR` | Gerencia turmas, lança notas e presenças |
+| `ALUNO` | Acessa turmas, notas, materiais e comunicados |
+
+---
+
+## 🧩 Entidades
+| Entidade | Descrição |
+|---|---|
+| `Usuario` | Dados pessoais, endereço e tipo de perfil (ADMIN, PROFESSOR, ALUNO) |
+| `Curso` | Agrupa disciplinas de uma grade curricular |
+| `Disciplina` | Matéria pertencente a um curso com carga horária |
+| `Turma` | Oferta de uma disciplina em um período com professor e vagas |
+| `Matricula` | Vínculo entre aluno e turma |
+| `Aula` | Registro de aula de uma turma com data e conteúdo |
+| `Presenca` | Registro de presença do aluno por aula |
+| `Avaliacao` | Lançamento de nota por aluno/turma com tipo e resultado |
+| `Notificacao` | Comunicados internos enviados aos usuários |
+
+---
+
+## Value Objects
+| Value Object | Atributos |
+|---|---|
+| `Endereco` | rua, numero, bairro, cidade, estado, cep |
+| `Resultado` | valor, peso |
+| `PeriodoAcademico` | semestre, ano |
+
+---
+
+## Organização em Camadas
+```
+server/src/
+├── modules/
+│   ├── usuarios/
+│   ├── auth/
+│   ├── cursos/
+│   ├── disciplinas/
+│   ├── turmas/
+│   ├── matriculas/
+│   ├── aulas/
+│   ├── avaliacoes/
+│   └── notificacoes/
+└── shared/
+    ├── prisma/
+    ├── guards/
+    ├── decorators/
+    └── interceptors/
+```
+
+## 🔧 Infraestrutura
+| Recurso | Tecnologia |
+|---|---|
+| Backend | NestJS |
+| Frontend | React Native |
+| Banco de dados | PostgreSQL + Prisma 6 |
+| Autenticação | JWT |
+| Cache | Redis |
+| Containerização | Docker + Docker Compose |
+
+---
+
+# 📚 Identificação de Entidades e Value Objects
 
 Na **Plataforma de Gestão Acadêmica Simplificada**, alguns elementos possuem **identidade própria e ciclo de vida**, sendo classificados como **Entidades**.
 
