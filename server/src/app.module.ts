@@ -6,6 +6,7 @@ import { PrismaModule } from './shared/prisma/prisma.module';
 import { UsuariosModule } from './modules/usuarios/usuarios.module';
 import { CursosModule } from './modules/cursos/cursos.module';
 import { DisciplinaModule } from './modules/disciplina/disciplina.module';
+import { TurmasModule } from './modules/turmas/turmas.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -13,6 +14,7 @@ import { DisciplinaModule } from './modules/disciplina/disciplina.module';
     UsuariosModule,
     CursosModule,
     DisciplinaModule,
+    TurmasModule,
   ],
   controllers: [AppController],
   providers: [AppService],
