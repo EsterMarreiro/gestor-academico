@@ -7,6 +7,8 @@ import { UsuariosModule } from './modules/usuarios/usuarios.module';
 import { CursosModule } from './modules/cursos/cursos.module';
 import { DisciplinaModule } from './modules/disciplina/disciplina.module';
 import { TurmasModule } from './modules/turmas/turmas.module';
+import { MatriculaModule } from './matricula/matricula.module';
+import { AulaModule } from './aula/aula.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -15,6 +17,8 @@ import { TurmasModule } from './modules/turmas/turmas.module';
     CursosModule,
     DisciplinaModule,
     TurmasModule,
+    MatriculaModule,
+    AulaModule,
   ],
   controllers: [AppController],
   providers: [AppService],
