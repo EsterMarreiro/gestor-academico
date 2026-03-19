@@ -38,6 +38,8 @@ model Curso {
   descricao   String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  disciplinas Disciplina[]
 }
 
 model Disciplina {
