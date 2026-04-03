@@ -1,7 +1,6 @@
 import { IsEmail, IsNotEmpty, IsString, Length, IsEnum, IsOptional, IsDateString } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { TipoUsuario } from '@prisma/client';
 
 export class CreateUsuarioDto {
   @ApiProperty({ description: 'Nome completo do usuário' })

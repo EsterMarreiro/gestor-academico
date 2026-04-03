@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsuariosController } from './usuarios.controller';
 import { UsuariosService } from './usuarios.service';
-import { TipoUsuario } from '@prisma/client';
 
 const usuarioMock = {
   id: 1,
@@ -17,7 +16,6 @@ const usuarioMock = {
   rua: 'Rua das Flores',
   numero: '10',
   complemento: null,
-  tipoUsuario: TipoUsuario.ALUNO,
   createdAt: new Date(),
   updatedAt: new Date(),
 };

@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UsuariosService } from './usuarios.service';
 import { PrismaService } from '../../shared/prisma/prisma.service';
 import { NotFoundException } from '@nestjs/common';
-import { TipoUsuario } from '@prisma/client';
 
 const usuarioMock = {
   id: 1,
@@ -18,7 +17,6 @@ const usuarioMock = {
   rua: 'Rua das Flores',
   numero: '10',
   complemento: null,
-  tipoUsuario: TipoUsuario.ALUNO,
   createdAt: new Date(),
   updatedAt: new Date(),
 };
