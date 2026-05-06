@@ -14,48 +14,157 @@ datasource db {
 }
 
 model Usuario {
-  id             Int      @id @default(autoincrement())
+  id             Int       @id @default(autoincrement())
   nome           String
-  email          String   @unique
+  email          String    @unique
   senha          String
-  cpf            String   @unique
+  cpf            String    @unique
   telefone       String
-  dataNascimento DateTime
-  cep            String
-  estado         String
-  cidade         String
-  rua            String
-  numero         String
-  complemento    String?
-  tipoUsuario    TipoUsuario
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  dataNascimento DateTime  @map("data_nascimento") @db.Date
+  isAdmin        Boolean   @default(false) @map("is_admin")
+  criadoEm       DateTime  @default(now()) @map("criado_em")
+  atualizadoEm   DateTime  @updatedAt @map("atualizado_em")
+  deletadoEm     DateTime? @map("deletado_em")
+
+  aluno                Aluno?
+  professor            Professor?
+  inscricoesProfessor  InscricaoProfessor[]
+
+  @@map("usuario")
+}
+
+model Aluno {
+  id              Int       @id @default(autoincrement())
+  usuarioId       Int       @unique @map("usuario_id")
+  numeroMatricula String    @unique @map("numero_matricula")
+  criadoEm        DateTime  @default(now()) @map("criado_em")
+  atualizadoEm    DateTime  @updatedAt @map("atualizado_em")
+  deletadoEm      DateTime? @map("deletado_em")
+
+  usuario    Usuario     @relation(fields: [usuarioId], references: [id])
+  matriculas Matricula[]
+  turmas     AlunoTurma[]
+
+  @@map("aluno")
+}
+
+model Professor {
+  id           Int       @id @default(autoincrement())
+  usuarioId    Int       @unique @map("usuario_id")
+  titulacao    String?
+  criadoEm     DateTime  @default(now()) @map("criado_em")
+  atualizadoEm DateTime  @updatedAt @map("atualizado_em")
+  deletadoEm   DateTime? @map("deletado_em")
+
+  usuario     Usuario     @relation(fields: [usuarioId], references: [id])
+  disciplinas Disciplina[]
+
+  @@map("professor")
 }
 
 model Curso {
-  id          Int      @id @default(autoincrement())
-  nome        String
-  descricao   String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           Int       @id @default(autoincrement())
+  nome         String
+  descricao    String?
+  criadoEm     DateTime  @default(now()) @map("criado_em")
+  atualizadoEm DateTime  @updatedAt @map("atualizado_em")
+  deletadoEm   DateTime? @map("deletado_em")
 
   disciplinas Disciplina[]
+  matriculas  Matricula[]
+
+  @@map("curso")
 }
 
 model Disciplina {
-  id          Int      @id @default(autoincrement())
-  nome        String
-  descricao   String
-  carga_horaria Int
-  professorId   Int
-  cursoId     Int
-  curso       Curso    @relation(fields: [cursoId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           Int       @id @default(autoincrement())
+  nome         String
+  descricao    String?
+  cursoId      Int       @map("curso_id")
+  professorId  Int?      @map("professor_id")
+  criadoEm     DateTime  @default(now()) @map("criado_em")
+  atualizadoEm DateTime  @updatedAt @map("atualizado_em")
+  deletadoEm   DateTime? @map("deletado_em")
+
+  curso                Curso                @relation(fields: [cursoId], references: [id])
+  professor            Professor?           @relation(fields: [professorId], references: [id])
+  turmas               Turma[]
+  inscricoesProfessor  InscricaoProfessor[]
+
+  @@map("disciplina")
 }
 
-enum TipoUsuario {
-  ALUNO
-  PROFESSOR
-  ADMIN
+model Turma {
+  id           Int       @id @default(autoincrement())
+  codigo       String    @unique
+  disciplinaId Int       @map("disciplina_id")
+  vagasTotal   Int       @map("vagas_total")
+  criadoEm     DateTime  @default(now()) @map("criado_em")
+  atualizadoEm DateTime  @updatedAt @map("atualizado_em")
+  deletadoEm   DateTime? @map("deletado_em")
+
+  disciplina Disciplina  @relation(fields: [disciplinaId], references: [id])
+  alunos     AlunoTurma[]
+
+  @@map("turma")
+}
+
+model AlunoTurma {
+  id           Int       @id @default(autoincrement())
+  alunoId      Int       @map("aluno_id")
+  turmaId      Int       @map("turma_id")
+  criadoEm     DateTime  @default(now()) @map("criado_em")
+  atualizadoEm DateTime  @updatedAt @map("atualizado_em")
+  deletadoEm   DateTime? @map("deletado_em")
+
+  aluno Aluno @relation(fields: [alunoId], references: [id])
+  turma Turma @relation(fields: [turmaId], references: [id])
+
+  @@unique([alunoId, turmaId])
+  @@map("aluno_turma")
+}
+
+enum StatusMatricula {
+  pendente
+  ativa
+  em_fila
+  recusada
+}
+
+model Matricula {
+  id           Int             @id @default(autoincrement())
+  alunoId      Int             @map("aluno_id")
+  cursoId      Int             @map("curso_id")
+  status       StatusMatricula @default(pendente)
+  criadoEm     DateTime        @default(now()) @map("criado_em")
+  atualizadoEm DateTime        @updatedAt @map("atualizado_em")
+  deletadoEm   DateTime?       @map("deletado_em")
+
+  aluno Aluno @relation(fields: [alunoId], references: [id])
+  curso Curso @relation(fields: [cursoId], references: [id])
+
+  @@unique([alunoId, cursoId])
+  @@map("matricula")
+}
+
+enum StatusInscricaoProfessor {
+  pendente
+  aprovada
+  recusada
+}
+
+model InscricaoProfessor {
+  id           Int                      @id @default(autoincrement())
+  usuarioId    Int                      @map("usuario_id")
+  disciplinaId Int                      @map("disciplina_id")
+  status       StatusInscricaoProfessor @default(pendente)
+  criadoEm    DateTime                  @default(now()) @map("criado_em")
+  atualizadoEm DateTime                 @updatedAt @map("atualizado_em")
+  deletadoEm   DateTime?                @map("deletado_em")
+
+  usuario    Usuario    @relation(fields: [usuarioId], references: [id])
+  disciplina Disciplina @relation(fields: [disciplinaId], references: [id])
+
+  @@unique([usuarioId, disciplinaId])
+  @@map("inscricao_professor")
 }
