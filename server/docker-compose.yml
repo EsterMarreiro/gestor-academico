@@ -11,7 +11,47 @@ services:
         db:
           condition: service_healthy
         
-  app:
+  usuarios-ms:
+    build:
+      context: .
+      target: builder
+    container_name: gestor-academico-usuarios-ms
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/gestor_academico
+      NODE_ENV: development
+      USERS_MS_PORT: 4001
+      USERS_MS_BIND: 0.0.0.0
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run start:usuarios-ms:dev
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  turmas-ms:
+    build:
+      context: .
+      target: builder
+    container_name: gestor-academico-turmas-ms
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/gestor_academico
+      NODE_ENV: development
+      TURMAS_MS_PORT: 4002
+      TURMAS_MS_BIND: 0.0.0.0
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run start:turmas-ms:dev
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  gateway:
     build:
       context: .
       target: builder
@@ -21,6 +61,10 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/gestor_academico
       NODE_ENV: development
+      USERS_MS_HOST: usuarios-ms
+      USERS_MS_PORT: 4001
+      TURMAS_MS_HOST: turmas-ms
+      TURMAS_MS_PORT: 4002
     volumes:
       - .:/app
       - /app/node_modules
@@ -30,6 +74,10 @@ services:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
+      usuarios-ms:
+        condition: service_started
+      turmas-ms:
+        condition: service_started
 
   db:
     image: postgres:16-alpine

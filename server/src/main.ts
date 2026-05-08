@@ -7,7 +7,10 @@ async function bootstrap() {
 
   const configSwagger = new DocumentBuilder()
     .setTitle('Gestão Acadêmica Simplificada')
-    .setDescription('API de gestão acadêmica simplificada.')
+    .setDescription(
+      'Gateway HTTP público da API acadêmica. Usuários e turmas são roteados ' +
+      'para microserviços por TCP (/users e /turmas).',
+    )
     .setVersion('1.0')
     .addTag('Usuários')
     .addTag('Cursos')

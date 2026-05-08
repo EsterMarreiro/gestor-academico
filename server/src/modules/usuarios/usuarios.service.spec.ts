@@ -16,9 +16,11 @@ const usuarioMock = {
   cidade: 'João Pessoa',
   rua: 'Rua das Flores',
   numero: '10',
-  complemento: null,
-  createdAt: new Date(),
-  updatedAt: new Date(),
+  complemento: null as string | null,
+  isAdmin: false,
+  criadoEm: new Date(),
+  atualizadoEm: new Date(),
+  deletadoEm: null as Date | null,
 };
 
 const prismaMock = {
@@ -55,9 +57,39 @@ describe('UsuariosService', () => {
     it('deve criar um usuário e retorná-lo', async () => {
       prismaMock.usuario.create.mockResolvedValue(usuarioMock);
 
-      const result = await service.create(usuarioMock as any);
+      const dto = {
+        nome: usuarioMock.nome,
+        email: usuarioMock.email,
+        senha: usuarioMock.senha,
+        cpf: usuarioMock.cpf,
+        telefone: usuarioMock.telefone,
+        dataNascimento: usuarioMock.dataNascimento,
+        cep: usuarioMock.cep,
+        estado: usuarioMock.estado,
+        cidade: usuarioMock.cidade,
+        rua: usuarioMock.rua,
+        numero: usuarioMock.numero,
+        complemento: usuarioMock.complemento ?? undefined,
+      };
 
-      expect(prismaMock.usuario.create).toHaveBeenCalledWith({ data: usuarioMock });
+      const result = await service.create(dto as any);
+
+      expect(prismaMock.usuario.create).toHaveBeenCalledWith({
+        data: {
+          nome: dto.nome,
+          email: dto.email,
+          senha: dto.senha,
+          cpf: dto.cpf,
+          telefone: dto.telefone,
+          dataNascimento: dto.dataNascimento,
+          cep: dto.cep,
+          estado: dto.estado,
+          cidade: dto.cidade,
+          rua: dto.rua,
+          numero: dto.numero,
+          complemento: null,
+        },
+      });
       expect(result).toEqual(usuarioMock);
     });
   });
@@ -102,7 +134,7 @@ describe('UsuariosService', () => {
 
       expect(prismaMock.usuario.update).toHaveBeenCalledWith({
         where: { id: 1 },
-        data: dto,
+        data: { nome: 'Ester Atualizada' },
       });
       expect(result).toEqual(atualizado);
     });
