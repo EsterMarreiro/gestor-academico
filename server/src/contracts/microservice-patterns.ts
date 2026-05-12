@@ -29,3 +29,11 @@ export const DISCIPLINA_MSG = {
   update: 'disciplinas.update',
   remove: 'disciplinas.remove',
 } as const;
+
+export const MATRICULA_MSG = {
+  create: 'matriculas.create',
+  findAll: 'matriculas.findAll',
+  findOne: 'matriculas.findOne',
+  update: 'matriculas.update',
+  remove: 'matriculas.remove',
+} as const;

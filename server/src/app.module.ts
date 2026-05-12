@@ -7,7 +7,7 @@ import { UsuariosGatewayModule } from './gateway/usuarios.gateway.module';
 import { TurmasGatewayModule } from './gateway/turmas.gateway.module';
 import { CursosGatewayModule } from './gateway/cursos.gateway.module';
 import { DisciplinasGatewayModule } from './gateway/disciplinas.gateway.module';
-import { MatriculaModule } from './modules/matricula/matricula.module';
+import { MatriculasGatewayModule } from './gateway/matriculas.gateway.module';
 import { AulaModule } from './modules/aula/aula.module';
 @Module({
   imports: [
@@ -17,7 +17,7 @@ import { AulaModule } from './modules/aula/aula.module';
     TurmasGatewayModule,
     CursosGatewayModule,
     DisciplinasGatewayModule,
-    MatriculaModule,
+    MatriculasGatewayModule,
     AulaModule,
   ],
   controllers: [AppController],
