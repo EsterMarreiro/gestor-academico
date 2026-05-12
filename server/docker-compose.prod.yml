@@ -52,6 +52,26 @@ services:
         condition: service_completed_successfully
     restart: unless-stopped
 
+  cursos-ms:
+    build:
+      context: .
+      target: production
+    container_name: gestor-academico-cursos-ms-prod
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      NODE_ENV: production
+      CURSOS_MS_BIND: 0.0.0.0
+      CURSOS_MS_PORT: 4003
+    expose:
+      - '4003'
+    command: ['node', 'dist/main.cursos-ms.js']
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
   gateway:
     build:
       context: .
@@ -66,6 +86,8 @@ services:
       USERS_MS_PORT: 4001
       TURMAS_MS_HOST: turmas-ms
       TURMAS_MS_PORT: 4002
+      CURSOS_MS_HOST: cursos-ms
+      CURSOS_MS_PORT: 4003
     command: ['node', 'dist/main.js']
     depends_on:
       db:
@@ -75,6 +97,8 @@ services:
       usuarios-ms:
         condition: service_started
       turmas-ms:
+        condition: service_started
+      cursos-ms:
         condition: service_started
     restart: unless-stopped
 

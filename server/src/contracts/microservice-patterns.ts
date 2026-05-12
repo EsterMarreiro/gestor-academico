@@ -13,3 +13,11 @@ export const TURMA_MSG = {
   update: 'turmas.update',
   remove: 'turmas.remove',
 } as const;
+
+export const CURSO_MSG = {
+  create: 'cursos.create',
+  findAll: 'cursos.findAll',
+  findOne: 'cursos.findOne',
+  update: 'cursos.update',
+  remove: 'cursos.remove',
+} as const;

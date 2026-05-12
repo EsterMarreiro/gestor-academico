@@ -51,6 +51,26 @@ services:
       migrate:
         condition: service_completed_successfully
 
+  cursos-ms:
+    build:
+      context: .
+      target: builder
+    container_name: gestor-academico-cursos-ms
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/gestor_academico
+      NODE_ENV: development
+      CURSOS_MS_PORT: 4003
+      CURSOS_MS_BIND: 0.0.0.0
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run start:cursos-ms:dev
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
   gateway:
     build:
       context: .
@@ -65,6 +85,8 @@ services:
       USERS_MS_PORT: 4001
       TURMAS_MS_HOST: turmas-ms
       TURMAS_MS_PORT: 4002
+      CURSOS_MS_HOST: cursos-ms
+      CURSOS_MS_PORT: 4003
     volumes:
       - .:/app
       - /app/node_modules
@@ -77,6 +99,8 @@ services:
       usuarios-ms:
         condition: service_started
       turmas-ms:
+        condition: service_started
+      cursos-ms:
         condition: service_started
 
   db:
