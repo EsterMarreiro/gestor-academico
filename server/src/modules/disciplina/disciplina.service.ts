@@ -6,11 +6,20 @@ import {
 import { Prisma } from '@prisma/client';
 import { CreateDisciplinaDto } from './dto/create-disciplina.dto';
 import { UpdateDisciplinaDto } from './dto/update-disciplina.dto';
+import {
+  DISCIPLINA_ATUALIZADA_EVENT,
+  DISCIPLINA_CRIADA_EVENT,
+  DISCIPLINA_REMOVIDA_EVENT,
+} from '../../contracts/rmq.events';
+import { DomainEventsPublisher } from '../../messaging/domain-events.publisher';
 import { PrismaService } from '../../shared/prisma/prisma.service';
 
 @Injectable()
 export class DisciplinaService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly domainEvents: DomainEventsPublisher,
+  ) {}
 
   private rethrowPrismaAsHttp(e: unknown): never {
     if (e instanceof Prisma.PrismaClientValidationError) {
@@ -31,7 +40,14 @@ export class DisciplinaService {
         : {}),
     };
     try {
-      return await this.prisma.disciplina.create({ data });
+      const created = await this.prisma.disciplina.create({ data });
+      this.domainEvents.publish(DISCIPLINA_CRIADA_EVENT, {
+        disciplinaId: created.id,
+        nome: created.nome,
+        cursoId: created.cursoId,
+        professorId: created.professorId ?? null,
+      });
+      return created;
     } catch (e) {
       this.rethrowPrismaAsHttp(e);
     }
@@ -72,10 +88,15 @@ export class DisciplinaService {
     }
 
     try {
-      return await this.prisma.disciplina.update({
+      const updated = await this.prisma.disciplina.update({
         where: { id },
         data,
       });
+      this.domainEvents.publish(DISCIPLINA_ATUALIZADA_EVENT, {
+        disciplinaId: updated.id,
+        cursoId: updated.cursoId,
+      });
+      return updated;
     } catch (e) {
       this.rethrowPrismaAsHttp(e);
     }
@@ -84,8 +105,12 @@ export class DisciplinaService {
   async remove(id: number) {
     await this.findOne(id);
 
-    return this.prisma.disciplina.delete({
+    const removed = await this.prisma.disciplina.delete({
       where: { id },
     });
+    this.domainEvents.publish(DISCIPLINA_REMOVIDA_EVENT, {
+      disciplinaId: removed.id,
+    });
+    return removed;
   }
 }

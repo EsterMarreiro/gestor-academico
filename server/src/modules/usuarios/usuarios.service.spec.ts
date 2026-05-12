@@ -36,7 +36,11 @@ const prismaMock = {
 
 describe('UsuariosService', () => {
   let service: UsuariosService;
-  const usuarioEventsMock = { publishUsuarioCriado: jest.fn() };
+  const usuarioEventsMock = {
+    publishUsuarioCriado: jest.fn(),
+    publishUsuarioAtualizado: jest.fn(),
+    publishUsuarioRemovido: jest.fn(),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -52,6 +56,8 @@ describe('UsuariosService', () => {
 
     service = module.get<UsuariosService>(UsuariosService);
     usuarioEventsMock.publishUsuarioCriado.mockReset();
+    usuarioEventsMock.publishUsuarioAtualizado.mockReset();
+    usuarioEventsMock.publishUsuarioRemovido.mockReset();
   });
 
   afterEach(() => jest.clearAllMocks());
@@ -145,6 +151,12 @@ describe('UsuariosService', () => {
 
       const result = await service.update(1, dto as any);
 
+      expect(usuarioEventsMock.publishUsuarioAtualizado).toHaveBeenCalledWith({
+        id: atualizado.id,
+        nome: atualizado.nome,
+        email: atualizado.email,
+        isAdmin: atualizado.isAdmin,
+      });
       expect(prismaMock.usuario.update).toHaveBeenCalledWith({
         where: { id: 1 },
         data: { nome: 'Ester Atualizada' },
@@ -166,6 +178,7 @@ describe('UsuariosService', () => {
 
       const result = await service.remove(1);
 
+      expect(usuarioEventsMock.publishUsuarioRemovido).toHaveBeenCalledWith(1);
       expect(prismaMock.usuario.delete).toHaveBeenCalledWith({ where: { id: 1 } });
       expect(result).toEqual(usuarioMock);
     });

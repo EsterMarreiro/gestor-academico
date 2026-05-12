@@ -6,11 +6,20 @@ import {
 import { Prisma } from '@prisma/client';
 import { CreateAulaDto } from './dto/create-aula.dto';
 import { UpdateAulaDto } from './dto/update-aula.dto';
+import {
+  AULA_ATUALIZADA_EVENT,
+  AULA_CRIADA_EVENT,
+  AULA_REMOVIDA_EVENT,
+} from '../../contracts/rmq.events';
+import { DomainEventsPublisher } from '../../messaging/domain-events.publisher';
 import { PrismaService } from '../../shared/prisma/prisma.service';
 
 @Injectable()
 export class AulaService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly domainEvents: DomainEventsPublisher,
+  ) {}
 
   private rethrowPrismaAsHttp(e: unknown): never {
     if (e instanceof Prisma.PrismaClientValidationError) {
@@ -60,7 +69,12 @@ export class AulaService {
       conteudo: createAulaDto.conteudo ?? null,
     };
     try {
-      return await this.prisma.aula.create({ data });
+      const created = await this.prisma.aula.create({ data });
+      this.domainEvents.publish(AULA_CRIADA_EVENT, {
+        aulaId: created.id,
+        turmaId: created.turmaId,
+      });
+      return created;
     } catch (e) {
       this.rethrowPrismaAsHttp(e);
     }
@@ -107,10 +121,12 @@ export class AulaService {
     if (d.conteudo !== undefined) data.conteudo = d.conteudo ?? null;
 
     try {
-      return await this.prisma.aula.update({
+      const updated = await this.prisma.aula.update({
         where: { id },
         data,
       });
+      this.domainEvents.publish(AULA_ATUALIZADA_EVENT, { aulaId: updated.id });
+      return updated;
     } catch (e) {
       this.rethrowPrismaAsHttp(e);
     }
@@ -120,9 +136,11 @@ export class AulaService {
     await this.findOne(id);
 
     try {
-      return await this.prisma.aula.delete({
+      const removed = await this.prisma.aula.delete({
         where: { id },
       });
+      this.domainEvents.publish(AULA_REMOVIDA_EVENT, { aulaId: removed.id });
+      return removed;
     } catch (e) {
       this.rethrowPrismaAsHttp(e);
     }

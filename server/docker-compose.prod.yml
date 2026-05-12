@@ -58,6 +58,7 @@ services:
       NODE_ENV: production
       TURMAS_MS_BIND: 0.0.0.0
       TURMAS_MS_PORT: 4002
+      RABBITMQ_URL: amqp://gestor:gestor@rabbitmq:5672
     expose:
       - '4002'
     command: ['node', 'dist/main.turmas-ms.js']
@@ -66,6 +67,8 @@ services:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
+      rabbitmq:
+        condition: service_healthy
     restart: unless-stopped
 
   cursos-ms:
@@ -78,6 +81,7 @@ services:
       NODE_ENV: production
       CURSOS_MS_BIND: 0.0.0.0
       CURSOS_MS_PORT: 4003
+      RABBITMQ_URL: amqp://gestor:gestor@rabbitmq:5672
     expose:
       - '4003'
     command: ['node', 'dist/main.cursos-ms.js']
@@ -86,6 +90,8 @@ services:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
+      rabbitmq:
+        condition: service_healthy
     restart: unless-stopped
 
   disciplinas-ms:
@@ -98,6 +104,7 @@ services:
       NODE_ENV: production
       DISCIPLINAS_MS_BIND: 0.0.0.0
       DISCIPLINAS_MS_PORT: 4004
+      RABBITMQ_URL: amqp://gestor:gestor@rabbitmq:5672
     expose:
       - '4004'
     command: ['node', 'dist/main.disciplinas-ms.js']
@@ -106,6 +113,8 @@ services:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
+      rabbitmq:
+        condition: service_healthy
     restart: unless-stopped
 
   matriculas-ms:
@@ -155,6 +164,7 @@ services:
       NODE_ENV: production
       AULAS_MS_BIND: 0.0.0.0
       AULAS_MS_PORT: 4006
+      RABBITMQ_URL: amqp://gestor:gestor@rabbitmq:5672
     expose:
       - '4006'
     command: ['node', 'dist/main.aulas-ms.js']
@@ -163,6 +173,8 @@ services:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
+      rabbitmq:
+        condition: service_healthy
     restart: unless-stopped
 
   gateway:

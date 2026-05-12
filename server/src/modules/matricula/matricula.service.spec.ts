@@ -24,7 +24,11 @@ describe('MatriculaService', () => {
         },
         {
           provide: MatriculaEventsPublisher,
-          useValue: { publishMatriculaCriada: jest.fn() },
+          useValue: {
+            publishMatriculaCriada: jest.fn(),
+            publishMatriculaAtualizada: jest.fn(),
+            publishMatriculaRemovida: jest.fn(),
+          },
         },
       ],
     }).compile();

@@ -59,6 +59,7 @@ services:
       NODE_ENV: development
       TURMAS_MS_PORT: 4002
       TURMAS_MS_BIND: 0.0.0.0
+      RABBITMQ_URL: amqp://gestor:gestor@rabbitmq:5672
     volumes:
       - .:/app
       - /app/node_modules
@@ -68,6 +69,8 @@ services:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
+      rabbitmq:
+        condition: service_healthy
 
   cursos-ms:
     build:
@@ -79,6 +82,7 @@ services:
       NODE_ENV: development
       CURSOS_MS_PORT: 4003
       CURSOS_MS_BIND: 0.0.0.0
+      RABBITMQ_URL: amqp://gestor:gestor@rabbitmq:5672
     volumes:
       - .:/app
       - /app/node_modules
@@ -88,6 +92,8 @@ services:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
+      rabbitmq:
+        condition: service_healthy
 
   disciplinas-ms:
     build:
@@ -99,6 +105,7 @@ services:
       NODE_ENV: development
       DISCIPLINAS_MS_PORT: 4004
       DISCIPLINAS_MS_BIND: 0.0.0.0
+      RABBITMQ_URL: amqp://gestor:gestor@rabbitmq:5672
     volumes:
       - .:/app
       - /app/node_modules
@@ -108,6 +115,8 @@ services:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
+      rabbitmq:
+        condition: service_healthy
 
   matriculas-ms:
     build:
@@ -158,6 +167,7 @@ services:
       NODE_ENV: development
       AULAS_MS_PORT: 4006
       AULAS_MS_BIND: 0.0.0.0
+      RABBITMQ_URL: amqp://gestor:gestor@rabbitmq:5672
     volumes:
       - .:/app
       - /app/node_modules
@@ -167,6 +177,8 @@ services:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
+      rabbitmq:
+        condition: service_healthy
 
   gateway:
     build:

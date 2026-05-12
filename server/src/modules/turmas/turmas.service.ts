@@ -7,11 +7,20 @@ import {
 import { Prisma } from '@prisma/client';
 import { CreateTurmaDto } from './dto/create-turma.dto';
 import { UpdateTurmaDto } from './dto/update-turma.dto';
+import {
+  TURMA_ATUALIZADA_EVENT,
+  TURMA_CRIADA_EVENT,
+  TURMA_REMOVIDA_EVENT,
+} from '../../contracts/rmq.events';
+import { DomainEventsPublisher } from '../../messaging/domain-events.publisher';
 import { PrismaService } from '../../shared/prisma/prisma.service';
 
 @Injectable()
 export class TurmasService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly domainEvents: DomainEventsPublisher,
+  ) {}
 
   private rethrowPrismaAsHttp(e: unknown): never {
     if (e instanceof Prisma.PrismaClientValidationError) {
@@ -64,7 +73,13 @@ export class TurmasService {
       disciplina: { connect: { id: createTurmaDto.disciplinaId } },
     };
     try {
-      return await this.prisma.turma.create({ data });
+      const created = await this.prisma.turma.create({ data });
+      this.domainEvents.publish(TURMA_CRIADA_EVENT, {
+        turmaId: created.id,
+        codigo: created.codigo,
+        disciplinaId: created.disciplinaId,
+      });
+      return created;
     } catch (e) {
       this.rethrowPrismaAsHttp(e);
     }
@@ -109,10 +124,15 @@ export class TurmasService {
     }
 
     try {
-      return await this.prisma.turma.update({
+      const updated = await this.prisma.turma.update({
         where: { id },
         data,
       });
+      this.domainEvents.publish(TURMA_ATUALIZADA_EVENT, {
+        turmaId: updated.id,
+        codigo: updated.codigo,
+      });
+      return updated;
     } catch (e) {
       this.rethrowPrismaAsHttp(e);
     }
@@ -122,9 +142,11 @@ export class TurmasService {
     await this.findOne(id);
 
     try {
-      return await this.prisma.turma.delete({
+      const removed = await this.prisma.turma.delete({
         where: { id },
       });
+      this.domainEvents.publish(TURMA_REMOVIDA_EVENT, { turmaId: removed.id });
+      return removed;
     } catch (e) {
       this.rethrowPrismaAsHttp(e);
     }

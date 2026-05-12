@@ -126,10 +126,17 @@ export class MatriculaService {
     }
 
     try {
-      return await this.prisma.matricula.update({
+      const updated = await this.prisma.matricula.update({
         where: { id },
         data,
       });
+      this.matriculaEvents.publishMatriculaAtualizada({
+        id: updated.id,
+        alunoId: updated.alunoId,
+        cursoId: updated.cursoId,
+        status: updated.status,
+      });
+      return updated;
     } catch (e) {
       this.rethrowPrismaAsHttp(e);
     }
@@ -139,9 +146,11 @@ export class MatriculaService {
     await this.findOne(id);
 
     try {
-      return await this.prisma.matricula.delete({
+      const removed = await this.prisma.matricula.delete({
         where: { id },
       });
+      this.matriculaEvents.publishMatriculaRemovida(removed.id);
+      return removed;
     } catch (e) {
       this.rethrowPrismaAsHttp(e);
     }

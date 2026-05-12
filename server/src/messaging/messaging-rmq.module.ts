@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { DomainEventsPublisher } from './domain-events.publisher';
 import { MatriculaEventsPublisher } from './matricula-events.publisher';
 import { UsuarioEventsPublisher } from './usuario-events.publisher';
 import {
@@ -39,7 +40,15 @@ import {
       ],
     }),
   ],
-  providers: [MatriculaEventsPublisher, UsuarioEventsPublisher],
-  exports: [MatriculaEventsPublisher, UsuarioEventsPublisher],
+  providers: [
+    MatriculaEventsPublisher,
+    UsuarioEventsPublisher,
+    DomainEventsPublisher,
+  ],
+  exports: [
+    MatriculaEventsPublisher,
+    UsuarioEventsPublisher,
+    DomainEventsPublisher,
+  ],
 })
 export class MessagingRmqModule {}

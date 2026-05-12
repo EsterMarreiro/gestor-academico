@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { DomainEventsPublisher } from '../../messaging/domain-events.publisher';
 import { DisciplinaService } from './disciplina.service';
 import { PrismaService } from '../../shared/prisma/prisma.service';
 
@@ -20,6 +21,10 @@ describe('DisciplinaService', () => {
               delete: jest.fn(),
             },
           },
+        },
+        {
+          provide: DomainEventsPublisher,
+          useValue: { publish: jest.fn() },
         },
       ],
     }).compile();

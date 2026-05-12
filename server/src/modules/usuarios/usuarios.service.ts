@@ -88,10 +88,17 @@ export class UsuariosService {
     if (d.complemento !== undefined) data.complemento = d.complemento ?? null;
 
     try {
-      return await this.prisma.usuario.update({
+      const updated = await this.prisma.usuario.update({
         where: { id },
         data,
       });
+      this.usuarioEvents.publishUsuarioAtualizado({
+        id: updated.id,
+        nome: updated.nome,
+        email: updated.email,
+        isAdmin: updated.isAdmin,
+      });
+      return updated;
     } catch (e) {
       this.rethrowPrismaAsHttp(e);
     }
@@ -100,8 +107,10 @@ export class UsuariosService {
   async remove(id: number) {
     await this.findOne(id);
 
-    return this.prisma.usuario.delete({
+    const removed = await this.prisma.usuario.delete({
       where: { id },
     });
+    this.usuarioEvents.publishUsuarioRemovido(removed.id);
+    return removed;
   }
 }
