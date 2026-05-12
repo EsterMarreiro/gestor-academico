@@ -26,6 +26,6 @@ RUN npx prisma generate
 
 COPY --from=builder /app/dist ./dist
 
-EXPOSE 3000 4001 4002 4003 4004 4005
+EXPOSE 3000 4001 4002 4003 4004 4005 4006
 
 CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]

@@ -8,7 +8,7 @@ import { TurmasGatewayModule } from './gateway/turmas.gateway.module';
 import { CursosGatewayModule } from './gateway/cursos.gateway.module';
 import { DisciplinasGatewayModule } from './gateway/disciplinas.gateway.module';
 import { MatriculasGatewayModule } from './gateway/matriculas.gateway.module';
-import { AulaModule } from './modules/aula/aula.module';
+import { AulasGatewayModule } from './gateway/aulas.gateway.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -18,7 +18,7 @@ import { AulaModule } from './modules/aula/aula.module';
     CursosGatewayModule,
     DisciplinasGatewayModule,
     MatriculasGatewayModule,
-    AulaModule,
+    AulasGatewayModule,
   ],
   controllers: [AppController],
   providers: [AppService],

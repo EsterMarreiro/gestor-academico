@@ -111,6 +111,7 @@ model Turma {
 
   disciplina Disciplina  @relation(fields: [disciplinaId], references: [id])
   alunos     AlunoTurma[]
+  aulas      Aula[]
 
   @@map("turma")
 }
@@ -128,6 +129,22 @@ model AlunoTurma {
 
   @@unique([alunoId, turmaId])
   @@map("aluno_turma")
+}
+
+model Aula {
+  id           Int       @id @default(autoincrement())
+  turmaId      Int       @map("turma_id")
+  titulo       String?
+  dataInicio   DateTime  @map("data_inicio")
+  dataFim      DateTime? @map("data_fim")
+  conteudo     String?
+  criadoEm     DateTime  @default(now()) @map("criado_em")
+  atualizadoEm DateTime  @updatedAt @map("atualizado_em")
+  deletadoEm   DateTime? @map("deletado_em")
+
+  turma Turma @relation(fields: [turmaId], references: [id])
+
+  @@map("aula")
 }
 
 enum StatusMatricula {

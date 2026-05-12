@@ -37,3 +37,11 @@ export const MATRICULA_MSG = {
   update: 'matriculas.update',
   remove: 'matriculas.remove',
 } as const;
+
+export const AULA_MSG = {
+  create: 'aulas.create',
+  findAll: 'aulas.findAll',
+  findOne: 'aulas.findOne',
+  update: 'aulas.update',
+  remove: 'aulas.remove',
+} as const;

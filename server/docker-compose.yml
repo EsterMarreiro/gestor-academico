@@ -111,6 +111,26 @@ services:
       migrate:
         condition: service_completed_successfully
 
+  aulas-ms:
+    build:
+      context: .
+      target: builder
+    container_name: gestor-academico-aulas-ms
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/gestor_academico
+      NODE_ENV: development
+      AULAS_MS_PORT: 4006
+      AULAS_MS_BIND: 0.0.0.0
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run start:aulas-ms:dev
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
   gateway:
     build:
       context: .
@@ -131,6 +151,8 @@ services:
       DISCIPLINAS_MS_PORT: 4004
       MATRICULAS_MS_HOST: matriculas-ms
       MATRICULAS_MS_PORT: 4005
+      AULAS_MS_HOST: aulas-ms
+      AULAS_MS_PORT: 4006
     volumes:
       - .:/app
       - /app/node_modules
@@ -149,6 +171,8 @@ services:
       disciplinas-ms:
         condition: service_started
       matriculas-ms:
+        condition: service_started
+      aulas-ms:
         condition: service_started
 
   db:

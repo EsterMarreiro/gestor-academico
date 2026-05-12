@@ -1,23 +1,25 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AulaService } from './aula.service';
+import { PrismaService } from '../../shared/prisma/prisma.service';
 
 describe('AulaService', () => {
   let service: AulaService;
 
-  // Mock simplificado do Service
-  const mockAulaService = {
-    create: jest.fn().mockImplementation((dto) => ({ id: 1, ...dto })),
-    findAll: jest.fn().mockResolvedValue([{ id: 1, nome: 'Aula de Teste' }]),
-    findOne: jest.fn().mockResolvedValue({ id: 1, nome: 'Aula de Teste' }),
-    remove: jest.fn().mockResolvedValue({ deleted: true }),
-  };
-
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
+        AulaService,
         {
-          provide: AulaService,
-          useValue: mockAulaService,
+          provide: PrismaService,
+          useValue: {
+            aula: {
+              create: jest.fn(),
+              findMany: jest.fn(),
+              findUnique: jest.fn(),
+              update: jest.fn(),
+              delete: jest.fn(),
+            },
+          },
         },
       ],
     }).compile();
@@ -25,19 +27,7 @@ describe('AulaService', () => {
     service = module.get<AulaService>(AulaService);
   });
 
-  it('deve estar definido', () => {
+  it('should be defined', () => {
     expect(service).toBeDefined();
-  });
-
-  it('deve criar uma aula (CRUD - Create)', async () => {
-    const dto = { nome: 'Aula Nova' };
-    const result = await service.create(dto);
-    expect(result).toEqual({ id: 1, ...dto });
-  });
-
-  it('deve listar todas as aulas (CRUD - Read)', async () => {
-    const aulas = await service.findAll();
-    expect(aulas).toBeInstanceOf(Array);
-    expect(aulas[0].nome).toBe('Aula de Teste');
   });
 });
