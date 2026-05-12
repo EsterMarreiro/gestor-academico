@@ -71,6 +71,26 @@ services:
       migrate:
         condition: service_completed_successfully
 
+  disciplinas-ms:
+    build:
+      context: .
+      target: builder
+    container_name: gestor-academico-disciplinas-ms
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/gestor_academico
+      NODE_ENV: development
+      DISCIPLINAS_MS_PORT: 4004
+      DISCIPLINAS_MS_BIND: 0.0.0.0
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run start:disciplinas-ms:dev
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
   gateway:
     build:
       context: .
@@ -87,10 +107,12 @@ services:
       TURMAS_MS_PORT: 4002
       CURSOS_MS_HOST: cursos-ms
       CURSOS_MS_PORT: 4003
+      DISCIPLINAS_MS_HOST: disciplinas-ms
+      DISCIPLINAS_MS_PORT: 4004
     volumes:
       - .:/app
       - /app/node_modules
-    command: npm run start:dev
+    command: npm run start:gateway:dev
     depends_on:
       db:
         condition: service_healthy
@@ -101,6 +123,8 @@ services:
       turmas-ms:
         condition: service_started
       cursos-ms:
+        condition: service_started
+      disciplinas-ms:
         condition: service_started
 
   db:

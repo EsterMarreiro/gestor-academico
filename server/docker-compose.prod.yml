@@ -72,6 +72,26 @@ services:
         condition: service_completed_successfully
     restart: unless-stopped
 
+  disciplinas-ms:
+    build:
+      context: .
+      target: production
+    container_name: gestor-academico-disciplinas-ms-prod
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      NODE_ENV: production
+      DISCIPLINAS_MS_BIND: 0.0.0.0
+      DISCIPLINAS_MS_PORT: 4004
+    expose:
+      - '4004'
+    command: ['node', 'dist/main.disciplinas-ms.js']
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
   gateway:
     build:
       context: .
@@ -88,6 +108,8 @@ services:
       TURMAS_MS_PORT: 4002
       CURSOS_MS_HOST: cursos-ms
       CURSOS_MS_PORT: 4003
+      DISCIPLINAS_MS_HOST: disciplinas-ms
+      DISCIPLINAS_MS_PORT: 4004
     command: ['node', 'dist/main.js']
     depends_on:
       db:
@@ -99,6 +121,8 @@ services:
       turmas-ms:
         condition: service_started
       cursos-ms:
+        condition: service_started
+      disciplinas-ms:
         condition: service_started
     restart: unless-stopped
 

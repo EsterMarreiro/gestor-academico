@@ -21,3 +21,11 @@ export const CURSO_MSG = {
   update: 'cursos.update',
   remove: 'cursos.remove',
 } as const;
+
+export const DISCIPLINA_MSG = {
+  create: 'disciplinas.create',
+  findAll: 'disciplinas.findAll',
+  findOne: 'disciplinas.findOne',
+  update: 'disciplinas.update',
+  remove: 'disciplinas.remove',
+} as const;
