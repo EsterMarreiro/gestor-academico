@@ -1,7 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UsuariosService } from './usuarios.service';
-import { PrismaService } from '../../shared/prisma/prisma.service';
 import { NotFoundException } from '@nestjs/common';
+import { UsuarioEventsPublisher } from '../../messaging/usuario-events.publisher';
+import { PrismaService } from '../../shared/prisma/prisma.service';
+import { UsuariosService } from './usuarios.service';
 
 const usuarioMock = {
   id: 1,
@@ -35,16 +36,22 @@ const prismaMock = {
 
 describe('UsuariosService', () => {
   let service: UsuariosService;
+  const usuarioEventsMock = { publishUsuarioCriado: jest.fn() };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UsuariosService,
         { provide: PrismaService, useValue: prismaMock },
+        {
+          provide: UsuarioEventsPublisher,
+          useValue: usuarioEventsMock,
+        },
       ],
     }).compile();
 
     service = module.get<UsuariosService>(UsuariosService);
+    usuarioEventsMock.publishUsuarioCriado.mockReset();
   });
 
   afterEach(() => jest.clearAllMocks());
@@ -74,6 +81,12 @@ describe('UsuariosService', () => {
 
       const result = await service.create(dto as any);
 
+      expect(usuarioEventsMock.publishUsuarioCriado).toHaveBeenCalledWith({
+        id: usuarioMock.id,
+        nome: usuarioMock.nome,
+        email: usuarioMock.email,
+        isAdmin: usuarioMock.isAdmin,
+      });
       expect(prismaMock.usuario.create).toHaveBeenCalledWith({
         data: {
           nome: dto.nome,

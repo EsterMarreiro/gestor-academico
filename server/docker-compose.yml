@@ -1,4 +1,19 @@
 services:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: gestor-academico-rabbitmq
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    environment:
+      RABBITMQ_DEFAULT_USER: gestor
+      RABBITMQ_DEFAULT_PASS: gestor
+    healthcheck:
+      test: ['CMD', 'rabbitmq-diagnostics', '-q', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   migrate:
       build:
         context: .
@@ -21,6 +36,7 @@ services:
       NODE_ENV: development
       USERS_MS_PORT: 4001
       USERS_MS_BIND: 0.0.0.0
+      RABBITMQ_URL: amqp://gestor:gestor@rabbitmq:5672
     volumes:
       - .:/app
       - /app/node_modules
@@ -30,6 +46,8 @@ services:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
+      rabbitmq:
+        condition: service_healthy
 
   turmas-ms:
     build:
@@ -101,6 +119,7 @@ services:
       NODE_ENV: development
       MATRICULAS_MS_PORT: 4005
       MATRICULAS_MS_BIND: 0.0.0.0
+      RABBITMQ_URL: amqp://gestor:gestor@rabbitmq:5672
     volumes:
       - .:/app
       - /app/node_modules
@@ -110,6 +129,24 @@ services:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
+      rabbitmq:
+        condition: service_healthy
+
+  matriculas-rmq-consumer:
+    build:
+      context: .
+      target: builder
+    container_name: gestor-academico-matriculas-rmq-consumer
+    environment:
+      NODE_ENV: development
+      RABBITMQ_URL: amqp://gestor:gestor@rabbitmq:5672
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run start:matriculas-rmq-consumer:dev
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
   aulas-ms:
     build:

@@ -7,11 +7,15 @@ import {
 import { Prisma } from '@prisma/client';
 import { CreateMatriculaDto } from './dto/create-matricula.dto';
 import { UpdateMatriculaDto } from './dto/update-matricula.dto';
+import { MatriculaEventsPublisher } from '../../messaging/matricula-events.publisher';
 import { PrismaService } from '../../shared/prisma/prisma.service';
 
 @Injectable()
 export class MatriculaService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly matriculaEvents: MatriculaEventsPublisher,
+  ) {}
 
   private rethrowPrismaAsHttp(e: unknown): never {
     if (e instanceof Prisma.PrismaClientValidationError) {
@@ -66,7 +70,14 @@ export class MatriculaService {
         : {}),
     };
     try {
-      return await this.prisma.matricula.create({ data });
+      const created = await this.prisma.matricula.create({ data });
+      this.matriculaEvents.publishMatriculaCriada({
+        id: created.id,
+        alunoId: created.alunoId,
+        cursoId: created.cursoId,
+        status: created.status,
+      });
+      return created;
     } catch (e) {
       this.rethrowPrismaAsHttp(e);
     }

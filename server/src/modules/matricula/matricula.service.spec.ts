@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { MatriculaEventsPublisher } from '../../messaging/matricula-events.publisher';
 import { MatriculaService } from './matricula.service';
 import { PrismaService } from '../../shared/prisma/prisma.service';
 
@@ -20,6 +21,10 @@ describe('MatriculaService', () => {
               delete: jest.fn(),
             },
           },
+        },
+        {
+          provide: MatriculaEventsPublisher,
+          useValue: { publishMatriculaCriada: jest.fn() },
         },
       ],
     }).compile();

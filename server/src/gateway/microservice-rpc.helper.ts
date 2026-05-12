@@ -119,7 +119,10 @@ function extractHttpStatus(obj: Record<string, unknown>, depth = 0): number {
   }
   const response = obj['response'];
   if (response && typeof response === 'object' && response !== null) {
-    const nested = extractHttpStatus(response as Record<string, unknown>, depth + 1);
+    const nested = extractHttpStatus(
+      response as Record<string, unknown>,
+      depth + 1,
+    );
     if (nested !== 502) return nested;
   }
   return 502;
@@ -181,7 +184,10 @@ function unwrapMicroserviceError(err: unknown): never {
       (raw ? `Detalhe: ${raw.slice(0, 500)}` : '');
   }
 
-  throw new HttpException(message || 'Falha na chamada ao microserviço.', status);
+  throw new HttpException(
+    message || 'Falha na chamada ao microserviço.',
+    status,
+  );
 }
 
 export async function sendRpc<T>(
