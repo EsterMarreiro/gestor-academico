@@ -45,3 +45,19 @@ export const AULA_MSG = {
   update: 'aulas.update',
   remove: 'aulas.remove',
 } as const;
+
+export const ALUNO_MSG = {
+  create: 'alunos.create',
+  findAll: 'alunos.findAll',
+  findOne: 'alunos.findOne',
+  update: 'alunos.update',
+  remove: 'alunos.remove',
+} as const;
+
+export const PROFESSOR_MSG = {
+  create: 'professores.create',
+  findAll: 'professores.findAll',
+  findOne: 'professores.findOne',
+  update: 'professores.update',
+  remove: 'professores.remove',
+} as const;

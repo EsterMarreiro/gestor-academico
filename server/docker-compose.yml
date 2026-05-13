@@ -180,6 +180,52 @@ services:
       rabbitmq:
         condition: service_healthy
 
+  alunos-ms:
+    build:
+      context: .
+      target: builder
+    container_name: gestor-academico-alunos-ms
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/gestor_academico
+      NODE_ENV: development
+      ALUNOS_MS_PORT: 4007
+      ALUNOS_MS_BIND: 0.0.0.0
+      RABBITMQ_URL: amqp://gestor:gestor@rabbitmq:5672
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run start:alunos-ms:dev
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      rabbitmq:
+        condition: service_healthy
+
+  professores-ms:
+    build:
+      context: .
+      target: builder
+    container_name: gestor-academico-professores-ms
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/gestor_academico
+      NODE_ENV: development
+      PROFESSORES_MS_PORT: 4008
+      PROFESSORES_MS_BIND: 0.0.0.0
+      RABBITMQ_URL: amqp://gestor:gestor@rabbitmq:5672
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run start:professores-ms:dev
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      rabbitmq:
+        condition: service_healthy
+
   gateway:
     build:
       context: .
@@ -202,6 +248,10 @@ services:
       MATRICULAS_MS_PORT: 4005
       AULAS_MS_HOST: aulas-ms
       AULAS_MS_PORT: 4006
+      ALUNOS_MS_HOST: alunos-ms
+      ALUNOS_MS_PORT: 4007
+      PROFESSORES_MS_HOST: professores-ms
+      PROFESSORES_MS_PORT: 4008
     volumes:
       - .:/app
       - /app/node_modules
@@ -222,6 +272,10 @@ services:
       matriculas-ms:
         condition: service_started
       aulas-ms:
+        condition: service_started
+      alunos-ms:
+        condition: service_started
+      professores-ms:
         condition: service_started
 
   db:

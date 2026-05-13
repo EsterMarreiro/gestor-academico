@@ -4,12 +4,18 @@ import {
   AULA_ATUALIZADA_EVENT,
   AULA_CRIADA_EVENT,
   AULA_REMOVIDA_EVENT,
+  ALUNO_ATUALIZADO_EVENT,
+  ALUNO_CRIADO_EVENT,
+  ALUNO_REMOVIDO_EVENT,
   CURSO_ATUALIZADO_EVENT,
   CURSO_CRIADO_EVENT,
   CURSO_REMOVIDO_EVENT,
   DISCIPLINA_ATUALIZADA_EVENT,
   DISCIPLINA_CRIADA_EVENT,
   DISCIPLINA_REMOVIDA_EVENT,
+  PROFESSOR_ATUALIZADO_EVENT,
+  PROFESSOR_CRIADO_EVENT,
+  PROFESSOR_REMOVIDO_EVENT,
   TURMA_ATUALIZADA_EVENT,
   TURMA_CRIADA_EVENT,
   TURMA_REMOVIDA_EVENT,
@@ -89,5 +95,43 @@ export class DomainRmqEventsController {
   @EventPattern(AULA_REMOVIDA_EVENT)
   handleAulaRemovida(@Payload() data: Record<string, unknown>): void {
     this.logger.log(`[mensageria] Aula removida: id=${data['aulaId']}`);
+  }
+
+  @EventPattern(ALUNO_CRIADO_EVENT)
+  handleAlunoCriado(@Payload() data: Record<string, unknown>): void {
+    this.logger.log(
+      `[mensageria] Aluno criado: id=${data['alunoId']} usuario=${data['usuarioId']}`,
+    );
+  }
+
+  @EventPattern(ALUNO_ATUALIZADO_EVENT)
+  handleAlunoAtualizado(@Payload() data: Record<string, unknown>): void {
+    this.logger.log(`[mensageria] Aluno atualizado: id=${data['alunoId']}`);
+  }
+
+  @EventPattern(ALUNO_REMOVIDO_EVENT)
+  handleAlunoRemovido(@Payload() data: Record<string, unknown>): void {
+    this.logger.log(`[mensageria] Aluno removido: id=${data['alunoId']}`);
+  }
+
+  @EventPattern(PROFESSOR_CRIADO_EVENT)
+  handleProfessorCriado(@Payload() data: Record<string, unknown>): void {
+    this.logger.log(
+      `[mensageria] Professor criado: id=${data['professorId']} usuario=${data['usuarioId']}`,
+    );
+  }
+
+  @EventPattern(PROFESSOR_ATUALIZADO_EVENT)
+  handleProfessorAtualizado(@Payload() data: Record<string, unknown>): void {
+    this.logger.log(
+      `[mensageria] Professor atualizado: id=${data['professorId']}`,
+    );
+  }
+
+  @EventPattern(PROFESSOR_REMOVIDO_EVENT)
+  handleProfessorRemovido(@Payload() data: Record<string, unknown>): void {
+    this.logger.log(
+      `[mensageria] Professor removido: id=${data['professorId']}`,
+    );
   }
 }

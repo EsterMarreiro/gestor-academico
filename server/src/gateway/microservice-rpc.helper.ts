@@ -8,7 +8,7 @@ const RPC_TIMEOUT_MS = 10_000;
 const TCP_DOWN_HINT =
   'Microserviço TCP indisponível ou ligação falhou. Na pasta server execute `npm run start:dev` ' +
   '(gateway + todos os microserviços) ou o script do serviço em falta (ex.: `npm run start:turmas-ms:dev` na porta ' +
-  '4002, `npm run start:matriculas-ms:dev` na 4005, `npm run start:aulas-ms:dev` na 4006). Com Docker, confirme o contentor do MS e variáveis *_MS_HOST.';
+  '4002, `npm run start:matriculas-ms:dev` na 4005, `npm run start:aulas-ms:dev` na 4006, `npm run start:alunos-ms:dev` na 4007, `npm run start:professores-ms:dev` na 4008). Com Docker, confirme o contentor do MS e variáveis *_MS_HOST.';
 
 /** Texto agregado para detetar falhas de rede / transporte. */
 function collectErrorText(err: unknown, depth = 0, maxDepth = 10): string {
@@ -124,6 +124,16 @@ function extractHttpStatus(obj: Record<string, unknown>, depth = 0): number {
       depth + 1,
     );
     if (nested !== 502) return nested;
+  }
+  for (const key of ['error', 'err']) {
+    const inner = obj[key];
+    if (inner && typeof inner === 'object') {
+      const nested = extractHttpStatus(
+        inner as Record<string, unknown>,
+        depth + 1,
+      );
+      if (nested !== 502) return nested;
+    }
   }
   return 502;
 }

@@ -177,6 +177,52 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  alunos-ms:
+    build:
+      context: .
+      target: production
+    container_name: gestor-academico-alunos-ms-prod
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      NODE_ENV: production
+      ALUNOS_MS_BIND: 0.0.0.0
+      ALUNOS_MS_PORT: 4007
+      RABBITMQ_URL: amqp://gestor:gestor@rabbitmq:5672
+    expose:
+      - '4007'
+    command: ['node', 'dist/main.alunos-ms.js']
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
+  professores-ms:
+    build:
+      context: .
+      target: production
+    container_name: gestor-academico-professores-ms-prod
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      NODE_ENV: production
+      PROFESSORES_MS_BIND: 0.0.0.0
+      PROFESSORES_MS_PORT: 4008
+      RABBITMQ_URL: amqp://gestor:gestor@rabbitmq:5672
+    expose:
+      - '4008'
+    command: ['node', 'dist/main.professores-ms.js']
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
   gateway:
     build:
       context: .
@@ -199,6 +245,10 @@ services:
       MATRICULAS_MS_PORT: 4005
       AULAS_MS_HOST: aulas-ms
       AULAS_MS_PORT: 4006
+      ALUNOS_MS_HOST: alunos-ms
+      ALUNOS_MS_PORT: 4007
+      PROFESSORES_MS_HOST: professores-ms
+      PROFESSORES_MS_PORT: 4008
     command: ['node', 'dist/main.js']
     depends_on:
       db:
@@ -216,6 +266,10 @@ services:
       matriculas-ms:
         condition: service_started
       aulas-ms:
+        condition: service_started
+      alunos-ms:
+        condition: service_started
+      professores-ms:
         condition: service_started
     restart: unless-stopped
 

@@ -2,6 +2,7 @@ import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { Transport } from '@nestjs/microservices';
 import { AulasMsAppModule } from './microservice-apps/aulas-ms-app.module';
+import { HttpToRpcExceptionFilter } from './shared/filters/http-to-rpc-exception.filter';
 
 async function bootstrap() {
   const port = parseInt(process.env.AULAS_MS_PORT ?? '4006', 10);
@@ -10,6 +11,7 @@ async function bootstrap() {
     transport: Transport.TCP,
     options: { host, port },
   });
+  app.useGlobalFilters(new HttpToRpcExceptionFilter());
   await app.listen();
 
   Logger.log(
