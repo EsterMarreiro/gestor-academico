@@ -67,9 +67,7 @@ export class AlunoService {
         'Esquema da base desatualizado. Execute `npx prisma migrate deploy` na pasta server.',
       );
     }
-    throw new BadRequestException(
-      `Erro na operação: ${msg.slice(0, 600)}`,
-    );
+    throw new BadRequestException(`Erro na operação: ${msg.slice(0, 600)}`);
   }
 
   async create(createAlunoDto: CreateAlunoDto) {

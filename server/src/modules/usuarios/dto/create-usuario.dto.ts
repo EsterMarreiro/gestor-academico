@@ -1,6 +1,13 @@
-import { IsEmail, IsNotEmpty, IsString, Length, IsEnum, IsOptional, IsDateString } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  Length,
+  IsOptional,
+  IsDateString,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
+import { Transform, TransformFnParams } from 'class-transformer';
 
 export class CreateUsuarioDto {
   @ApiProperty({ description: 'Nome completo do usuário' })
@@ -28,10 +35,14 @@ export class CreateUsuarioDto {
   @IsNotEmpty({ message: 'O telefone é obrigatório' })
   telefone: string;
 
-  @ApiProperty({ description: 'Data de nascimento do usuário (formato ISO 8601)' })
+  @ApiProperty({
+    description: 'Data de nascimento do usuário (formato ISO 8601)',
+  })
   @IsDateString({}, { message: 'Data de nascimento inválida' })
   @IsNotEmpty({ message: 'A data de nascimento é obrigatória' })
-  @Transform(({ value }) => new Date(value))
+  @Transform(({ value }: TransformFnParams) =>
+    typeof value === 'string' ? new Date(value) : value,
+  )
   dataNascimento: Date;
 
   @ApiProperty({ description: 'CEP do usuário' })
@@ -64,8 +75,8 @@ export class CreateUsuarioDto {
   @IsOptional()
   complemento?: string;
 
-//   @ApiProperty({ description: 'Tipo do usuário', enum: TipoUsuario })
-//   @IsEnum(TipoUsuario, { message: 'Tipo de usuário inválido' })
-//   @IsNotEmpty({ message: 'O tipo de usuário é obrigatório' })
-//   tipoUsuario: TipoUsuario;
+  //   @ApiProperty({ description: 'Tipo do usuário', enum: TipoUsuario })
+  //   @IsEnum(TipoUsuario, { message: 'Tipo de usuário inválido' })
+  //   @IsNotEmpty({ message: 'O tipo de usuário é obrigatório' })
+  //   tipoUsuario: TipoUsuario;
 }

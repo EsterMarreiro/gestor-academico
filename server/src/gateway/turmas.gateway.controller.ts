@@ -9,12 +9,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import {
-  ApiOperation,
-  ApiParam,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { TURMA_MSG } from '../contracts/microservice-patterns';
 import { CreateTurmaDto } from '../modules/turmas/dto/create-turma.dto';
 import { UpdateTurmaDto } from '../modules/turmas/dto/update-turma.dto';
@@ -83,10 +78,7 @@ export class TurmasGatewayController {
     type: Number,
   })
   @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateTurmaDto: UpdateTurmaDto,
-  ) {
+  update(@Param('id') id: string, @Body() updateTurmaDto: UpdateTurmaDto) {
     return sendRpc(this.turmasClient, TURMA_MSG.update, {
       id: +id,
       dto: updateTurmaDto,

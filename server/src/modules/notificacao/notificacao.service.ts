@@ -4,7 +4,7 @@ import { UpdateNotificacaoDto } from './dto/update-notificacao.dto';
 
 @Injectable()
 export class NotificacaoService {
-  create(createNotificacaoDto: CreateNotificacaoDto) {
+  create(_createNotificacaoDto: CreateNotificacaoDto) {
     return 'This action adds a new notificacao';
   }
 
@@ -16,7 +16,7 @@ export class NotificacaoService {
     return `This action returns a #${id} notificacao`;
   }
 
-  update(id: number, updateNotificacaoDto: UpdateNotificacaoDto) {
+  update(id: number, _updateNotificacaoDto: UpdateNotificacaoDto) {
     return `This action updates a #${id} notificacao`;
   }
 

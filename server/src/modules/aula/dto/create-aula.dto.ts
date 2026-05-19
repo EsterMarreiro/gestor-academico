@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
+import { Transform, TransformFnParams } from 'class-transformer';
 import {
   IsDateString,
   IsInt,
@@ -23,14 +23,20 @@ export class CreateAulaDto {
   @ApiProperty({ description: 'Data e hora de início (ISO 8601)' })
   @IsDateString({}, { message: 'dataInicio inválida' })
   @IsNotEmpty({ message: 'dataInicio é obrigatória' })
-  @Transform(({ value }) => new Date(value))
+  @Transform(({ value }: TransformFnParams) =>
+    typeof value === 'string' ? new Date(value) : value,
+  )
   dataInicio: Date;
 
   @ApiPropertyOptional({ description: 'Data e hora de fim (ISO 8601)' })
   @IsOptional()
   @IsDateString({}, { message: 'dataFim inválida' })
-  @Transform(({ value }) =>
-    value == null || value === '' ? undefined : new Date(value),
+  @Transform(({ value }: TransformFnParams) =>
+    value == null || value === ''
+      ? undefined
+      : typeof value === 'string'
+        ? new Date(value)
+        : value,
   )
   dataFim?: Date;
 

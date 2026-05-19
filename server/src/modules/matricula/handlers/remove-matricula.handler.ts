@@ -5,9 +5,7 @@ import { MatriculaReadRepository } from '../repositories/matricula-read.reposito
 import { MatriculaWriteRepository } from '../repositories/matricula-write.repository';
 
 @CommandHandler(RemoveMatriculaCommand)
-export class RemoveMatriculaHandler
-  implements ICommandHandler<RemoveMatriculaCommand>
-{
+export class RemoveMatriculaHandler implements ICommandHandler<RemoveMatriculaCommand> {
   constructor(
     private readonly readRepository: MatriculaReadRepository,
     private readonly writeRepository: MatriculaWriteRepository,

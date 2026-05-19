@@ -9,12 +9,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import {
-  ApiOperation,
-  ApiParam,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ALUNO_MSG } from '../contracts/microservice-patterns';
 import { CreateAlunoDto } from '../modules/aluno/dto/create-aluno.dto';
 import { UpdateAlunoDto } from '../modules/aluno/dto/update-aluno.dto';
@@ -36,11 +31,13 @@ export class AlunosGatewayController {
   @ApiResponse({ status: 201, description: 'Aluno criado' })
   @ApiResponse({
     status: 400,
-    description: 'Corpo inválido ou utilizador inexistente (referência inválida).',
+    description:
+      'Corpo inválido ou utilizador inexistente (referência inválida).',
   })
   @ApiResponse({
     status: 409,
-    description: 'Já existe aluno para este utilizador ou número de matrícula em conflito.',
+    description:
+      'Já existe aluno para este utilizador ou número de matrícula em conflito.',
   })
   @Post()
   create(@Body() dto: CreateAlunoDto) {
@@ -64,7 +61,10 @@ export class AlunosGatewayController {
   @ApiOperation({ summary: 'Atualiza aluno' })
   @ApiParam({ name: 'id', type: Number })
   @ApiResponse({ status: 404, description: 'Aluno não encontrado' })
-  @ApiResponse({ status: 409, description: 'Conflito de matrícula ou utilizador' })
+  @ApiResponse({
+    status: 409,
+    description: 'Conflito de matrícula ou utilizador',
+  })
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdateAlunoDto) {
     return sendRpc(this.alunosClient, ALUNO_MSG.update, {

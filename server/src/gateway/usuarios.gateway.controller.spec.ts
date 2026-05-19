@@ -2,6 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { of } from 'rxjs';
 import { UsuariosGatewayController } from './usuarios.gateway.controller';
 import { USERS_SERVICE_TOKEN } from './gateway-tokens';
+import { CreateUsuarioDto } from '../modules/usuarios/dto/create-usuario.dto';
+import { UpdateUsuarioDto } from '../modules/usuarios/dto/update-usuario.dto';
 import { USER_MSG } from '../contracts/microservice-patterns';
 
 const usuarioMock = {
@@ -51,8 +53,21 @@ describe('UsuariosGatewayController', () => {
     it('deve encaminhar create ao cliente TCP', async () => {
       clientMock.send.mockReturnValue(of(usuarioMock));
 
-      const dto = { ...usuarioMock };
-      const result = await controller.create(dto as any);
+      const dto: CreateUsuarioDto = {
+        nome: usuarioMock.nome,
+        email: usuarioMock.email,
+        senha: usuarioMock.senha,
+        cpf: usuarioMock.cpf,
+        telefone: usuarioMock.telefone,
+        dataNascimento: usuarioMock.dataNascimento,
+        cep: usuarioMock.cep,
+        estado: usuarioMock.estado,
+        cidade: usuarioMock.cidade,
+        rua: usuarioMock.rua,
+        numero: usuarioMock.numero,
+        complemento: usuarioMock.complemento ?? undefined,
+      };
+      const result = await controller.create(dto);
 
       expect(clientMock.send).toHaveBeenCalledWith(USER_MSG.create, dto);
       expect(result).toEqual(usuarioMock);
@@ -83,11 +98,11 @@ describe('UsuariosGatewayController', () => {
 
   describe('update', () => {
     it('deve encaminhar update ao cliente TCP', async () => {
-      const dto = { nome: 'Ester Atualizada' };
+      const dto: UpdateUsuarioDto = { nome: 'Ester Atualizada' };
       const atualizado = { ...usuarioMock, ...dto };
       clientMock.send.mockReturnValue(of(atualizado));
 
-      const result = await controller.update('1', dto as any);
+      const result = await controller.update('1', dto);
 
       expect(clientMock.send).toHaveBeenCalledWith(USER_MSG.update, {
         id: 1,

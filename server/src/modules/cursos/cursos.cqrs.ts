@@ -57,9 +57,7 @@ export class RemoveCursoHandler implements ICommandHandler<RemoveCursoCommand> {
 }
 
 @QueryHandler(GetCursoByIdQuery)
-export class GetCursoByIdHandler
-  implements IQueryHandler<GetCursoByIdQuery>
-{
+export class GetCursoByIdHandler implements IQueryHandler<GetCursoByIdQuery> {
   constructor(private readonly cursosService: CursosService) {}
 
   execute(query: GetCursoByIdQuery) {

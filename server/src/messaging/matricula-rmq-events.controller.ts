@@ -26,11 +26,7 @@ export class MatriculaRmqEventsController {
   }
 
   @EventPattern(MATRICULA_REMOVIDA_EVENT)
-  handleMatriculaRemovida(
-    @Payload() data: { matriculaId: number },
-  ): void {
-    this.logger.log(
-      `[mensageria] Matrícula removida: id=${data.matriculaId}`,
-    );
+  handleMatriculaRemovida(@Payload() data: { matriculaId: number }): void {
+    this.logger.log(`[mensageria] Matrícula removida: id=${data.matriculaId}`);
   }
 }

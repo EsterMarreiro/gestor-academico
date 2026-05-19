@@ -2,6 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { of } from 'rxjs';
 import { DisciplinasGatewayController } from './disciplinas.gateway.controller';
 import { DISCIPLINAS_SERVICE_TOKEN } from './gateway-tokens';
+import { CreateDisciplinaDto } from '../modules/disciplina/dto/create-disciplina.dto';
+import { UpdateDisciplinaDto } from '../modules/disciplina/dto/update-disciplina.dto';
 import { DISCIPLINA_MSG } from '../contracts/microservice-patterns';
 
 const disciplinaMock = {
@@ -25,9 +27,7 @@ describe('DisciplinasGatewayController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [DisciplinasGatewayController],
-      providers: [
-        { provide: DISCIPLINAS_SERVICE_TOKEN, useValue: clientMock },
-      ],
+      providers: [{ provide: DISCIPLINAS_SERVICE_TOKEN, useValue: clientMock }],
     }).compile();
 
     controller = module.get<DisciplinasGatewayController>(
@@ -44,8 +44,8 @@ describe('DisciplinasGatewayController', () => {
 
   it('create encaminha ao cliente TCP', async () => {
     clientMock.send.mockReturnValue(of(disciplinaMock));
-    const dto = { nome: 'Algoritmos', cursoId: 1 };
-    const result = await controller.create(dto as any);
+    const dto: CreateDisciplinaDto = { nome: 'Algoritmos', cursoId: 1 };
+    const result = await controller.create(dto);
     expect(clientMock.send).toHaveBeenCalledWith(DISCIPLINA_MSG.create, dto);
     expect(result).toEqual(disciplinaMock);
   });
@@ -65,10 +65,10 @@ describe('DisciplinasGatewayController', () => {
   });
 
   it('update encaminha ao cliente TCP', async () => {
-    const dto = { nome: 'Atualizado' };
+    const dto: UpdateDisciplinaDto = { nome: 'Atualizado' };
     const atualizado = { ...disciplinaMock, ...dto };
     clientMock.send.mockReturnValue(of(atualizado));
-    const result = await controller.update('1', dto as any);
+    const result = await controller.update('1', dto);
     expect(clientMock.send).toHaveBeenCalledWith(DISCIPLINA_MSG.update, {
       id: 1,
       dto,

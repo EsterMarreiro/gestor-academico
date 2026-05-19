@@ -1,3 +1,5 @@
-export class MatriculaUpdatedEvent<TMatricula = unknown> {
-  constructor(public readonly matricula: TMatricula) {}
+import type { Matricula } from '@prisma/client';
+
+export class MatriculaUpdatedEvent {
+  constructor(public readonly matricula: Matricula) {}
 }

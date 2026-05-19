@@ -9,12 +9,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import {
-  ApiOperation,
-  ApiParam,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CURSO_MSG } from '../contracts/microservice-patterns';
 import { CreateCursosDto } from '../modules/cursos/dto/create-cursos.dto';
 import { UpdateCursosDto } from '../modules/cursos/dto/update-cursos.dto';
@@ -83,10 +78,7 @@ export class CursosGatewayController {
     type: Number,
   })
   @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateCursosDto: UpdateCursosDto,
-  ) {
+  update(@Param('id') id: string, @Body() updateCursosDto: UpdateCursosDto) {
     return sendRpc(this.cursosClient, CURSO_MSG.update, {
       id: +id,
       dto: updateCursosDto,

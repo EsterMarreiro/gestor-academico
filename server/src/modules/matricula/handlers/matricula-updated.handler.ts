@@ -4,14 +4,10 @@ import { MatriculaEventsPublisher } from '../../../messaging/matricula-events.pu
 import { MatriculaUpdatedEvent } from '../events/impl/matricula-updated.event';
 
 @EventsHandler(MatriculaUpdatedEvent)
-export class MatriculaUpdatedHandler
-  implements IEventHandler<MatriculaUpdatedEvent>
-{
+export class MatriculaUpdatedHandler implements IEventHandler<MatriculaUpdatedEvent> {
   private readonly logger = new Logger(MatriculaUpdatedHandler.name);
 
-  constructor(
-    private readonly matriculaEvents: MatriculaEventsPublisher,
-  ) {}
+  constructor(private readonly matriculaEvents: MatriculaEventsPublisher) {}
 
   handle(event: MatriculaUpdatedEvent) {
     this.matriculaEvents.publishMatriculaAtualizada({

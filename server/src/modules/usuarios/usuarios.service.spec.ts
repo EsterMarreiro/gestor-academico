@@ -2,6 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
 import { UsuarioEventsPublisher } from '../../messaging/usuario-events.publisher';
 import { PrismaService } from '../../shared/prisma/prisma.service';
+import { CreateUsuarioDto } from './dto/create-usuario.dto';
+import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { UsuariosService } from './usuarios.service';
 
 const usuarioMock = {
@@ -70,7 +72,7 @@ describe('UsuariosService', () => {
     it('deve criar um usuário e retorná-lo', async () => {
       prismaMock.usuario.create.mockResolvedValue(usuarioMock);
 
-      const dto = {
+      const dto: CreateUsuarioDto = {
         nome: usuarioMock.nome,
         email: usuarioMock.email,
         senha: usuarioMock.senha,
@@ -85,7 +87,7 @@ describe('UsuariosService', () => {
         complemento: usuarioMock.complemento ?? undefined,
       };
 
-      const result = await service.create(dto as any);
+      const result = await service.create(dto);
 
       expect(usuarioEventsMock.publishUsuarioCriado).toHaveBeenCalledWith({
         id: usuarioMock.id,
@@ -130,7 +132,9 @@ describe('UsuariosService', () => {
 
       const result = await service.findOne(1);
 
-      expect(prismaMock.usuario.findUnique).toHaveBeenCalledWith({ where: { id: 1 } });
+      expect(prismaMock.usuario.findUnique).toHaveBeenCalledWith({
+        where: { id: 1 },
+      });
       expect(result).toEqual(usuarioMock);
     });
 
@@ -143,13 +147,13 @@ describe('UsuariosService', () => {
 
   describe('update', () => {
     it('deve atualizar e retornar o usuário', async () => {
-      const dto = { nome: 'Ester Atualizada' };
+      const dto: UpdateUsuarioDto = { nome: 'Ester Atualizada' };
       const atualizado = { ...usuarioMock, ...dto };
 
       prismaMock.usuario.findUnique.mockResolvedValue(usuarioMock);
       prismaMock.usuario.update.mockResolvedValue(atualizado);
 
-      const result = await service.update(1, dto as any);
+      const result = await service.update(1, dto);
 
       expect(usuarioEventsMock.publishUsuarioAtualizado).toHaveBeenCalledWith({
         id: atualizado.id,
@@ -167,7 +171,9 @@ describe('UsuariosService', () => {
     it('deve lançar NotFoundException se usuário não existir', async () => {
       prismaMock.usuario.findUnique.mockResolvedValue(null);
 
-      await expect(service.update(99, {} as any)).rejects.toThrow(NotFoundException);
+      await expect(service.update(99, {} as UpdateUsuarioDto)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -179,7 +185,9 @@ describe('UsuariosService', () => {
       const result = await service.remove(1);
 
       expect(usuarioEventsMock.publishUsuarioRemovido).toHaveBeenCalledWith(1);
-      expect(prismaMock.usuario.delete).toHaveBeenCalledWith({ where: { id: 1 } });
+      expect(prismaMock.usuario.delete).toHaveBeenCalledWith({
+        where: { id: 1 },
+      });
       expect(result).toEqual(usuarioMock);
     });
 

@@ -11,7 +11,9 @@ export function rethrowMatriculaPrismaAsHttp(e: unknown): never {
   }
   if (e instanceof Prisma.PrismaClientKnownRequestError) {
     if (e.code === 'P2002') {
-      throw new ConflictException('Ja existe matricula deste aluno neste curso.');
+      throw new ConflictException(
+        'Ja existe matricula deste aluno neste curso.',
+      );
     }
     if (e.code === 'P2003') {
       throw new BadRequestException(

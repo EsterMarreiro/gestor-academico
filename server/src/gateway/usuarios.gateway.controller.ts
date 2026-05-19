@@ -9,12 +9,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import {
-  ApiOperation,
-  ApiParam,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { USER_MSG } from '../contracts/microservice-patterns';
 import { CreateUsuarioDto } from '../modules/usuarios/dto/create-usuario.dto';
 import { UpdateUsuarioDto } from '../modules/usuarios/dto/update-usuario.dto';
@@ -83,10 +78,7 @@ export class UsuariosGatewayController {
     type: Number,
   })
   @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateUsuarioDto: UpdateUsuarioDto,
-  ) {
+  update(@Param('id') id: string, @Body() updateUsuarioDto: UpdateUsuarioDto) {
     return sendRpc(this.usersClient, USER_MSG.update, {
       id: +id,
       dto: updateUsuarioDto,

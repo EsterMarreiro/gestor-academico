@@ -9,8 +9,8 @@ async function bootstrap() {
     .setTitle('Gestão Acadêmica Simplificada')
     .setDescription(
       'Gateway HTTP público da API acadêmica. Usuários, turmas, cursos, ' +
-      'disciplinas, matrículas, aulas, alunos e professores são roteados para microserviços por TCP (/users, ' +
-      '/turmas, /cursos, /disciplina, /matricula, /aula, /alunos e /professores).',
+        'disciplinas, matrículas, aulas, alunos e professores são roteados para microserviços por TCP (/users, ' +
+        '/turmas, /cursos, /disciplina, /matricula, /aula, /alunos e /professores).',
     )
     .setVersion('1.0')
     .addTag('Usuários')
@@ -33,4 +33,5 @@ async function bootstrap() {
 
   await app.listen(process.env.PORT ?? 3000);
 }
-bootstrap();
+
+void bootstrap();

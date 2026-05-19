@@ -33,9 +33,7 @@ export class MatriculaTcpController {
   }
 
   @MessagePattern(MATRICULA_MSG.update)
-  update(
-    @Payload() payload: { id: number; dto: UpdateMatriculaDto },
-  ) {
+  update(@Payload() payload: { id: number; dto: UpdateMatriculaDto }) {
     return this.commandBus.execute(
       new UpdateMatriculaCommand(payload.id, payload.dto),
     );

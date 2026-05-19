@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { of } from 'rxjs';
 import { TurmasGatewayController } from './turmas.gateway.controller';
 import { TURMAS_SERVICE_TOKEN } from './gateway-tokens';
+import { CreateTurmaDto } from '../modules/turmas/dto/create-turma.dto';
 import { TURMA_MSG } from '../contracts/microservice-patterns';
 
 const clientMock = {
@@ -30,7 +31,11 @@ describe('TurmasGatewayController', () => {
   it('create encaminha ao microserviço', async () => {
     const msg = 'This action adds a new turma';
     clientMock.send.mockReturnValue(of(msg));
-    const dto = {} as any;
+    const dto: CreateTurmaDto = {
+      codigo: 'T2025-ALG-01',
+      disciplinaId: 1,
+      vagasTotal: 30,
+    };
     await expect(controller.create(dto)).resolves.toEqual(msg);
     expect(clientMock.send).toHaveBeenCalledWith(TURMA_MSG.create, dto);
   });

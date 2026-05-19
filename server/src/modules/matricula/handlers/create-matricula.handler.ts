@@ -4,9 +4,7 @@ import { MatriculaCreatedEvent } from '../events/impl/matricula-created.event';
 import { MatriculaWriteRepository } from '../repositories/matricula-write.repository';
 
 @CommandHandler(CreateMatriculaCommand)
-export class CreateMatriculaHandler
-  implements ICommandHandler<CreateMatriculaCommand>
-{
+export class CreateMatriculaHandler implements ICommandHandler<CreateMatriculaCommand> {
   constructor(
     private readonly writeRepository: MatriculaWriteRepository,
     private readonly eventBus: EventBus,

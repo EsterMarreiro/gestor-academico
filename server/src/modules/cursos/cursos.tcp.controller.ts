@@ -35,9 +35,7 @@ export class CursosTcpController {
   }
 
   @MessagePattern(CURSO_MSG.update)
-  update(
-    @Payload() payload: { id: number; dto: UpdateCursosDto },
-  ) {
+  update(@Payload() payload: { id: number; dto: UpdateCursosDto }) {
     return this.commandBus.execute(
       new UpdateCursoCommand(payload.id, payload.dto),
     );

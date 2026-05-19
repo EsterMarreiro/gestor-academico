@@ -1,5 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { CreateMatriculaDto } from './dto/create-matricula.dto';
+import { UpdateMatriculaDto } from './dto/update-matricula.dto';
 import { MatriculaTcpController } from './matricula.tcp.controller';
 import { CreateMatriculaCommand } from './commands/impl/create-matricula.command';
 import { GetMatriculaByIdQuery } from './queries/impl/get-matricula-by-id.query';
@@ -29,11 +31,11 @@ describe('MatriculaTcpController', () => {
   it('create dispatches a create command', async () => {
     commandBus.execute.mockResolvedValue({ id: 1 });
 
-    const dto = { alunoId: 1, cursoId: 1 };
-    await controller.create(dto as any);
+    const dto: CreateMatriculaDto = { alunoId: 1, cursoId: 1 };
+    await controller.create(dto);
 
     expect(commandBus.execute).toHaveBeenCalledWith(
-      expect.objectContaining(new CreateMatriculaCommand(dto as any)),
+      expect.objectContaining(new CreateMatriculaCommand(dto)),
     );
   });
 
@@ -59,13 +61,12 @@ describe('MatriculaTcpController', () => {
 
   it('update dispatches an update command', async () => {
     commandBus.execute.mockResolvedValue({ id: 1 });
+    const updateDto: UpdateMatriculaDto = { status: 'ativa' };
 
-    await controller.update({ id: 1, dto: { status: 'ativa' } } as any);
+    await controller.update({ id: 1, dto: updateDto });
 
     expect(commandBus.execute).toHaveBeenCalledWith(
-      expect.objectContaining(
-        new UpdateMatriculaCommand(1, { status: 'ativa' } as any),
-      ),
+      expect.objectContaining(new UpdateMatriculaCommand(1, updateDto)),
     );
   });
 

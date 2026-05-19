@@ -35,9 +35,7 @@ export class UsuariosTcpController {
   }
 
   @MessagePattern(USER_MSG.update)
-  update(
-    @Payload() payload: { id: number; dto: UpdateUsuarioDto },
-  ) {
+  update(@Payload() payload: { id: number; dto: UpdateUsuarioDto }) {
     return this.commandBus.execute(
       new UpdateUsuarioCommand(payload.id, payload.dto),
     );

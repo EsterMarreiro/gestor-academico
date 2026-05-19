@@ -30,9 +30,7 @@ export class GetDisciplinaByIdQuery {
 export class ListDisciplinasQuery {}
 
 @CommandHandler(CreateDisciplinaCommand)
-export class CreateDisciplinaHandler
-  implements ICommandHandler<CreateDisciplinaCommand>
-{
+export class CreateDisciplinaHandler implements ICommandHandler<CreateDisciplinaCommand> {
   constructor(private readonly disciplinaService: DisciplinaService) {}
 
   execute(command: CreateDisciplinaCommand) {
@@ -41,9 +39,7 @@ export class CreateDisciplinaHandler
 }
 
 @CommandHandler(UpdateDisciplinaCommand)
-export class UpdateDisciplinaHandler
-  implements ICommandHandler<UpdateDisciplinaCommand>
-{
+export class UpdateDisciplinaHandler implements ICommandHandler<UpdateDisciplinaCommand> {
   constructor(private readonly disciplinaService: DisciplinaService) {}
 
   execute(command: UpdateDisciplinaCommand) {
@@ -52,9 +48,7 @@ export class UpdateDisciplinaHandler
 }
 
 @CommandHandler(RemoveDisciplinaCommand)
-export class RemoveDisciplinaHandler
-  implements ICommandHandler<RemoveDisciplinaCommand>
-{
+export class RemoveDisciplinaHandler implements ICommandHandler<RemoveDisciplinaCommand> {
   constructor(private readonly disciplinaService: DisciplinaService) {}
 
   execute(command: RemoveDisciplinaCommand) {
@@ -63,9 +57,7 @@ export class RemoveDisciplinaHandler
 }
 
 @QueryHandler(GetDisciplinaByIdQuery)
-export class GetDisciplinaByIdHandler
-  implements IQueryHandler<GetDisciplinaByIdQuery>
-{
+export class GetDisciplinaByIdHandler implements IQueryHandler<GetDisciplinaByIdQuery> {
   constructor(private readonly disciplinaService: DisciplinaService) {}
 
   execute(query: GetDisciplinaByIdQuery) {
@@ -74,9 +66,7 @@ export class GetDisciplinaByIdHandler
 }
 
 @QueryHandler(ListDisciplinasQuery)
-export class ListDisciplinasHandler
-  implements IQueryHandler<ListDisciplinasQuery>
-{
+export class ListDisciplinasHandler implements IQueryHandler<ListDisciplinasQuery> {
   constructor(private readonly disciplinaService: DisciplinaService) {}
 
   execute() {

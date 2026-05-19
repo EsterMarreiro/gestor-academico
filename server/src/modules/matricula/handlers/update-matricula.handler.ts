@@ -5,9 +5,7 @@ import { MatriculaReadRepository } from '../repositories/matricula-read.reposito
 import { MatriculaWriteRepository } from '../repositories/matricula-write.repository';
 
 @CommandHandler(UpdateMatriculaCommand)
-export class UpdateMatriculaHandler
-  implements ICommandHandler<UpdateMatriculaCommand>
-{
+export class UpdateMatriculaHandler implements ICommandHandler<UpdateMatriculaCommand> {
   constructor(
     private readonly readRepository: MatriculaReadRepository,
     private readonly writeRepository: MatriculaWriteRepository,
@@ -16,7 +14,10 @@ export class UpdateMatriculaHandler
 
   async execute(command: UpdateMatriculaCommand) {
     await this.readRepository.findOne(command.id);
-    const matricula = await this.writeRepository.update(command.id, command.dto);
+    const matricula = await this.writeRepository.update(
+      command.id,
+      command.dto,
+    );
     this.eventBus.publish(new MatriculaUpdatedEvent(matricula));
     return matricula;
   }

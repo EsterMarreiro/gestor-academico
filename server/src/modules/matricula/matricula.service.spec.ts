@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MatriculaEventsPublisher } from '../../messaging/matricula-events.publisher';
 import { EventBus } from '@nestjs/cqrs';
 import { PrismaService } from '../../shared/prisma/prisma.service';
+import { StatusMatricula } from '@prisma/client';
 import { CreateMatriculaHandler } from './handlers/create-matricula.handler';
 import { GetMatriculaByIdHandler } from './handlers/get-matricula-by-id.handler';
 import { ListMatriculasHandler } from './handlers/list-matriculas.handler';
@@ -42,7 +43,10 @@ describe('Matricula CQRS handlers', () => {
     id: 1,
     alunoId: 1,
     cursoId: 1,
-    status: 'pendente',
+    status: StatusMatricula.pendente,
+    criadoEm: new Date('2026-01-01T00:00:00.000Z'),
+    atualizadoEm: new Date('2026-01-01T00:00:00.000Z'),
+    deletadoEm: null as Date | null,
   };
 
   beforeEach(async () => {
@@ -108,10 +112,10 @@ describe('Matricula CQRS handlers', () => {
   });
 
   it('create handler persists and publishes event', async () => {
-    jest.spyOn(writeRepository, 'create').mockResolvedValue(matriculaMock as any);
+    jest.spyOn(writeRepository, 'create').mockResolvedValue(matriculaMock);
 
     const result = await createHandler.execute(
-      new CreateMatriculaCommand({ alunoId: 1, cursoId: 1 } as any),
+      new CreateMatriculaCommand({ alunoId: 1, cursoId: 1 }),
     );
 
     expect(writeRepository.create).toHaveBeenCalledWith({
@@ -123,13 +127,13 @@ describe('Matricula CQRS handlers', () => {
   });
 
   it('update handler checks existence, updates and publishes event', async () => {
-    jest.spyOn(readRepository, 'findOne').mockResolvedValue(matriculaMock as any);
+    jest.spyOn(readRepository, 'findOne').mockResolvedValue(matriculaMock);
     jest
       .spyOn(writeRepository, 'update')
-      .mockResolvedValue({ ...matriculaMock, status: 'ativa' } as any);
+      .mockResolvedValue({ ...matriculaMock, status: StatusMatricula.ativa });
 
     const result = await updateHandler.execute(
-      new UpdateMatriculaCommand(1, { status: 'ativa' } as any),
+      new UpdateMatriculaCommand(1, { status: StatusMatricula.ativa }),
     );
 
     expect(readRepository.findOne).toHaveBeenCalledWith(1);
@@ -139,8 +143,8 @@ describe('Matricula CQRS handlers', () => {
   });
 
   it('remove handler checks existence, removes and publishes event', async () => {
-    jest.spyOn(readRepository, 'findOne').mockResolvedValue(matriculaMock as any);
-    jest.spyOn(writeRepository, 'remove').mockResolvedValue(matriculaMock as any);
+    jest.spyOn(readRepository, 'findOne').mockResolvedValue(matriculaMock);
+    jest.spyOn(writeRepository, 'remove').mockResolvedValue(matriculaMock);
 
     const result = await removeHandler.execute(new RemoveMatriculaCommand(1));
 
@@ -151,7 +155,7 @@ describe('Matricula CQRS handlers', () => {
   });
 
   it('get by id query reads from repository', async () => {
-    jest.spyOn(readRepository, 'findOne').mockResolvedValue(matriculaMock as any);
+    jest.spyOn(readRepository, 'findOne').mockResolvedValue(matriculaMock);
 
     const result = await getByIdHandler.execute(new GetMatriculaByIdQuery(1));
 
@@ -160,7 +164,7 @@ describe('Matricula CQRS handlers', () => {
   });
 
   it('list query reads all matriculas from repository', async () => {
-    jest.spyOn(readRepository, 'findAll').mockResolvedValue([matriculaMock] as any);
+    jest.spyOn(readRepository, 'findAll').mockResolvedValue([matriculaMock]);
 
     const result = await listHandler.execute();
 
@@ -169,7 +173,7 @@ describe('Matricula CQRS handlers', () => {
   });
 
   it('created event handler publishes RMQ event', () => {
-    createdEventHandler.handle(new MatriculaCreatedEvent(matriculaMock as any));
+    createdEventHandler.handle(new MatriculaCreatedEvent(matriculaMock));
 
     expect(matriculaEvents.publishMatriculaCriada).toHaveBeenCalledWith(
       matriculaMock,
@@ -177,7 +181,7 @@ describe('Matricula CQRS handlers', () => {
   });
 
   it('updated event handler publishes RMQ event', () => {
-    updatedEventHandler.handle(new MatriculaUpdatedEvent(matriculaMock as any));
+    updatedEventHandler.handle(new MatriculaUpdatedEvent(matriculaMock));
 
     expect(matriculaEvents.publishMatriculaAtualizada).toHaveBeenCalledWith(
       matriculaMock,
@@ -185,7 +189,7 @@ describe('Matricula CQRS handlers', () => {
   });
 
   it('removed event handler publishes RMQ event', () => {
-    removedEventHandler.handle(new MatriculaRemovedEvent(matriculaMock as any));
+    removedEventHandler.handle(new MatriculaRemovedEvent(matriculaMock));
 
     expect(matriculaEvents.publishMatriculaRemovida).toHaveBeenCalledWith(1);
   });

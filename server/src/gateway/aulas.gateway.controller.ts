@@ -9,12 +9,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import {
-  ApiOperation,
-  ApiParam,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AULA_MSG } from '../contracts/microservice-patterns';
 import { CreateAulaDto } from '../modules/aula/dto/create-aula.dto';
 import { UpdateAulaDto } from '../modules/aula/dto/update-aula.dto';
@@ -80,10 +75,7 @@ export class AulasGatewayController {
     type: Number,
   })
   @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateAulaDto: UpdateAulaDto,
-  ) {
+  update(@Param('id') id: string, @Body() updateAulaDto: UpdateAulaDto) {
     return sendRpc(this.aulasClient, AULA_MSG.update, {
       id: +id,
       dto: updateAulaDto,

@@ -12,7 +12,9 @@ export class CreateDisciplinaDto {
   @IsOptional()
   descricao?: string;
 
-  @ApiProperty({ description: 'Identificador do curso ao qual a disciplina pertence' })
+  @ApiProperty({
+    description: 'Identificador do curso ao qual a disciplina pertence',
+  })
   @IsInt({ message: 'cursoId deve ser um inteiro' })
   cursoId: number;
 

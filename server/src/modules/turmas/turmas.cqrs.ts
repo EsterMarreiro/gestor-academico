@@ -57,9 +57,7 @@ export class RemoveTurmaHandler implements ICommandHandler<RemoveTurmaCommand> {
 }
 
 @QueryHandler(GetTurmaByIdQuery)
-export class GetTurmaByIdHandler
-  implements IQueryHandler<GetTurmaByIdQuery>
-{
+export class GetTurmaByIdHandler implements IQueryHandler<GetTurmaByIdQuery> {
   constructor(private readonly turmasService: TurmasService) {}
 
   execute(query: GetTurmaByIdQuery) {

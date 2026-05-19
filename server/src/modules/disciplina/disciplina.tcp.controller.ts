@@ -35,9 +35,7 @@ export class DisciplinaTcpController {
   }
 
   @MessagePattern(DISCIPLINA_MSG.update)
-  update(
-    @Payload() payload: { id: number; dto: UpdateDisciplinaDto },
-  ) {
+  update(@Payload() payload: { id: number; dto: UpdateDisciplinaDto }) {
     return this.commandBus.execute(
       new UpdateDisciplinaCommand(payload.id, payload.dto),
     );

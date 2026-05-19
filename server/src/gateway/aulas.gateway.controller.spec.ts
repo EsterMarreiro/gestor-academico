@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { of } from 'rxjs';
 import { AulasGatewayController } from './aulas.gateway.controller';
 import { AULAS_SERVICE_TOKEN } from './gateway-tokens';
+import { CreateAulaDto } from '../modules/aula/dto/create-aula.dto';
 import { AULA_MSG } from '../contracts/microservice-patterns';
 
 const aulaMock = {
@@ -41,7 +42,7 @@ describe('AulasGatewayController', () => {
 
   it('create encaminha ao cliente TCP', async () => {
     clientMock.send.mockReturnValue(of(aulaMock));
-    const dto = { turmaId: 1, dataInicio: new Date().toISOString() } as any;
+    const dto: CreateAulaDto = { turmaId: 1, dataInicio: new Date() };
     const result = await controller.create(dto);
     expect(clientMock.send).toHaveBeenCalledWith(AULA_MSG.create, dto);
     expect(result).toEqual(aulaMock);

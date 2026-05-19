@@ -27,8 +27,6 @@ export class UsuarioRmqEventsController {
 
   @EventPattern(USUARIO_REMOVIDO_EVENT)
   handleUsuarioRemovido(@Payload() data: { usuarioId: number }): void {
-    this.logger.log(
-      `[mensageria] Utilizador removido: id=${data.usuarioId}`,
-    );
+    this.logger.log(`[mensageria] Utilizador removido: id=${data.usuarioId}`);
   }
 }

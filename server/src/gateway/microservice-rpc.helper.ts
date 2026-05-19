@@ -65,7 +65,7 @@ function isTimeoutLike(err: unknown): boolean {
 function safeJsonStringify(value: unknown, maxLen = 800): string {
   const seen = new WeakSet<object>();
   try {
-    const s = JSON.stringify(value, (_k, v) => {
+    const s = JSON.stringify(value, (_k: string, v: unknown) => {
       if (typeof v === 'object' && v !== null) {
         if (seen.has(v)) return '[Circular]';
         seen.add(v);

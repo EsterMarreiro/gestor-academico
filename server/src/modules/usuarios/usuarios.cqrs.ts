@@ -30,9 +30,7 @@ export class GetUsuarioByIdQuery {
 export class ListUsuariosQuery {}
 
 @CommandHandler(CreateUsuarioCommand)
-export class CreateUsuarioHandler
-  implements ICommandHandler<CreateUsuarioCommand>
-{
+export class CreateUsuarioHandler implements ICommandHandler<CreateUsuarioCommand> {
   constructor(private readonly usuariosService: UsuariosService) {}
 
   execute(command: CreateUsuarioCommand) {
@@ -41,9 +39,7 @@ export class CreateUsuarioHandler
 }
 
 @CommandHandler(UpdateUsuarioCommand)
-export class UpdateUsuarioHandler
-  implements ICommandHandler<UpdateUsuarioCommand>
-{
+export class UpdateUsuarioHandler implements ICommandHandler<UpdateUsuarioCommand> {
   constructor(private readonly usuariosService: UsuariosService) {}
 
   execute(command: UpdateUsuarioCommand) {
@@ -52,9 +48,7 @@ export class UpdateUsuarioHandler
 }
 
 @CommandHandler(RemoveUsuarioCommand)
-export class RemoveUsuarioHandler
-  implements ICommandHandler<RemoveUsuarioCommand>
-{
+export class RemoveUsuarioHandler implements ICommandHandler<RemoveUsuarioCommand> {
   constructor(private readonly usuariosService: UsuariosService) {}
 
   execute(command: RemoveUsuarioCommand) {
@@ -63,9 +57,7 @@ export class RemoveUsuarioHandler
 }
 
 @QueryHandler(GetUsuarioByIdQuery)
-export class GetUsuarioByIdHandler
-  implements IQueryHandler<GetUsuarioByIdQuery>
-{
+export class GetUsuarioByIdHandler implements IQueryHandler<GetUsuarioByIdQuery> {
   constructor(private readonly usuariosService: UsuariosService) {}
 
   execute(query: GetUsuarioByIdQuery) {

@@ -14,10 +14,7 @@ import { TURMAS_SERVICE_TOKEN } from './gateway-tokens';
           transport: Transport.TCP,
           options: {
             host: config.get<string>('TURMAS_MS_HOST', '127.0.0.1'),
-            port: parseInt(
-              config.get<string>('TURMAS_MS_PORT', '4002'),
-              10,
-            ),
+            port: parseInt(config.get<string>('TURMAS_MS_PORT', '4002'), 10),
           },
         }),
         inject: [ConfigService],

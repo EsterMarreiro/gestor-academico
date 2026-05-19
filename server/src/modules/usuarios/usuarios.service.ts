@@ -78,8 +78,7 @@ export class UsuariosService {
     if (d.senha !== undefined) data.senha = d.senha;
     if (d.cpf !== undefined) data.cpf = d.cpf;
     if (d.telefone !== undefined) data.telefone = d.telefone;
-    if (d.dataNascimento !== undefined)
-      data.dataNascimento = d.dataNascimento;
+    if (d.dataNascimento !== undefined) data.dataNascimento = d.dataNascimento;
     if (d.cep !== undefined) data.cep = d.cep;
     if (d.estado !== undefined) data.estado = d.estado;
     if (d.cidade !== undefined) data.cidade = d.cidade;

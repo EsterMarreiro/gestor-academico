@@ -9,7 +9,11 @@ import {
 
 @Module({
   imports: [CqrsModule, MessagingRmqModule],
-  providers: [UsuariosService, ...usuariosCommandHandlers, ...usuariosQueryHandlers],
+  providers: [
+    UsuariosService,
+    ...usuariosCommandHandlers,
+    ...usuariosQueryHandlers,
+  ],
   exports: [UsuariosService],
 })
 export class UsuariosModule {}

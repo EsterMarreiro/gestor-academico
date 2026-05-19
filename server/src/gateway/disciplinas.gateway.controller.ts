@@ -9,12 +9,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import {
-  ApiOperation,
-  ApiParam,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { DISCIPLINA_MSG } from '../contracts/microservice-patterns';
 import { CreateDisciplinaDto } from '../modules/disciplina/dto/create-disciplina.dto';
 import { UpdateDisciplinaDto } from '../modules/disciplina/dto/update-disciplina.dto';
@@ -61,7 +56,10 @@ export class DisciplinasGatewayController {
     summary: 'Lista os dados de uma disciplina específica',
     description: 'Encaminhado ao microserviço de disciplinas via API Gateway.',
   })
-  @ApiResponse({ status: 200, description: 'Disciplina encontrada com sucesso' })
+  @ApiResponse({
+    status: 200,
+    description: 'Disciplina encontrada com sucesso',
+  })
   @ApiResponse({ status: 404, description: 'Disciplina não encontrada' })
   @ApiParam({
     name: 'id',

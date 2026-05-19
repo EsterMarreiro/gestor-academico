@@ -2,6 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { of } from 'rxjs';
 import { MatriculasGatewayController } from './matriculas.gateway.controller';
 import { MATRICULAS_SERVICE_TOKEN } from './gateway-tokens';
+import { CreateMatriculaDto } from '../modules/matricula/dto/create-matricula.dto';
+import { UpdateMatriculaDto } from '../modules/matricula/dto/update-matricula.dto';
 import { MATRICULA_MSG } from '../contracts/microservice-patterns';
 
 const matriculaMock = {
@@ -24,9 +26,7 @@ describe('MatriculasGatewayController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [MatriculasGatewayController],
-      providers: [
-        { provide: MATRICULAS_SERVICE_TOKEN, useValue: clientMock },
-      ],
+      providers: [{ provide: MATRICULAS_SERVICE_TOKEN, useValue: clientMock }],
     }).compile();
 
     controller = module.get<MatriculasGatewayController>(
@@ -43,8 +43,8 @@ describe('MatriculasGatewayController', () => {
 
   it('create encaminha ao cliente TCP', async () => {
     clientMock.send.mockReturnValue(of(matriculaMock));
-    const dto = { alunoId: 1, cursoId: 1 };
-    const result = await controller.create(dto as any);
+    const dto: CreateMatriculaDto = { alunoId: 1, cursoId: 1 };
+    const result = await controller.create(dto);
     expect(clientMock.send).toHaveBeenCalledWith(MATRICULA_MSG.create, dto);
     expect(result).toEqual(matriculaMock);
   });
@@ -64,10 +64,10 @@ describe('MatriculasGatewayController', () => {
   });
 
   it('update encaminha ao cliente TCP', async () => {
-    const dto = { status: 'ativa' };
+    const dto: UpdateMatriculaDto = { status: 'ativa' };
     const atualizado = { ...matriculaMock, ...dto };
     clientMock.send.mockReturnValue(of(atualizado));
-    const result = await controller.update('1', dto as any);
+    const result = await controller.update('1', dto);
     expect(clientMock.send).toHaveBeenCalledWith(MATRICULA_MSG.update, {
       id: 1,
       dto,

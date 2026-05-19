@@ -38,13 +38,11 @@ export class HttpToRpcExceptionFilter implements RpcExceptionFilter<unknown> {
     if (exception instanceof HttpException) {
       const statusCode = exception.getStatus();
       const body = exception.getResponse();
-      const message =
-        typeof body === 'string' ? body : responseMessage(body);
-      return throwError(
-        () => new RpcException({ statusCode, message }),
-      );
+      const message = typeof body === 'string' ? body : responseMessage(body);
+      return throwError(() => new RpcException({ statusCode, message }));
     }
-    const err = exception instanceof Error ? exception : new Error(String(exception));
+    const err =
+      exception instanceof Error ? exception : new Error(String(exception));
     this.logger.error(err.stack ?? err.message);
     return throwError(
       () =>

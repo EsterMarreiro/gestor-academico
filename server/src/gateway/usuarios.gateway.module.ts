@@ -14,10 +14,7 @@ import { USERS_SERVICE_TOKEN } from './gateway-tokens';
           transport: Transport.TCP,
           options: {
             host: config.get<string>('USERS_MS_HOST', '127.0.0.1'),
-            port: parseInt(
-              config.get<string>('USERS_MS_PORT', '4001'),
-              10,
-            ),
+            port: parseInt(config.get<string>('USERS_MS_PORT', '4001'), 10),
           },
         }),
         inject: [ConfigService],

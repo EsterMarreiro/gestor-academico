@@ -9,12 +9,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import {
-  ApiOperation,
-  ApiParam,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PROFESSOR_MSG } from '../contracts/microservice-patterns';
 import { CreateProfessorDto } from '../modules/professor/dto/create-professor.dto';
 import { UpdateProfessorDto } from '../modules/professor/dto/update-professor.dto';
@@ -37,7 +32,8 @@ export class ProfessoresGatewayController {
   @ApiResponse({ status: 201, description: 'Professor criado' })
   @ApiResponse({
     status: 400,
-    description: 'Corpo inválido ou utilizador inexistente (referência inválida).',
+    description:
+      'Corpo inválido ou utilizador inexistente (referência inválida).',
   })
   @ApiResponse({
     status: 409,
@@ -64,8 +60,14 @@ export class ProfessoresGatewayController {
 
   @ApiOperation({ summary: 'Atualiza professor' })
   @ApiParam({ name: 'id', type: Number })
-  @ApiResponse({ status: 404, description: 'Professor ou utilizador (usuarioId) não encontrado' })
-  @ApiResponse({ status: 409, description: 'Professor já associado ao utilizador indicado' })
+  @ApiResponse({
+    status: 404,
+    description: 'Professor ou utilizador (usuarioId) não encontrado',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Professor já associado ao utilizador indicado',
+  })
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdateProfessorDto) {
     return sendRpc(this.professoresClient, PROFESSOR_MSG.update, {

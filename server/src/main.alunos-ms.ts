@@ -28,7 +28,7 @@ async function bootstrap() {
 
 void bootstrap().catch((err) => {
   Logger.error(
-    `Falha ao iniciar: ${err instanceof Error ? err.stack ?? err.message : String(err)}`,
+    `Falha ao iniciar: ${err instanceof Error ? (err.stack ?? err.message) : String(err)}`,
     undefined,
     'AlunosMS',
   );

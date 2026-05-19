@@ -4,7 +4,8 @@ import { IsDefined, IsInt, IsOptional, IsString, Min } from 'class-validator';
 
 export class CreateProfessorDto {
   @ApiProperty({
-    description: 'Identificador do utilizador (ex.: id devolvido por POST /users).',
+    description:
+      'Identificador do utilizador (ex.: id devolvido por POST /users).',
   })
   @Type(() => Number)
   @IsDefined({ message: 'usuarioId é obrigatório' })

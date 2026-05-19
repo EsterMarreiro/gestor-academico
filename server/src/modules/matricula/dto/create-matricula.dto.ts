@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { StatusMatricula } from '@prisma/client';
-import { IsEnum, IsInt, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsEnum, IsInt, IsOptional } from 'class-validator';
 
 export class CreateMatriculaDto {
   @ApiProperty({ description: 'Identificador do aluno' })

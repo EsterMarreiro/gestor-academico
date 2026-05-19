@@ -9,12 +9,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import {
-  ApiOperation,
-  ApiParam,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { MATRICULA_MSG } from '../contracts/microservice-patterns';
 import { CreateMatriculaDto } from '../modules/matricula/dto/create-matricula.dto';
 import { UpdateMatriculaDto } from '../modules/matricula/dto/update-matricula.dto';
