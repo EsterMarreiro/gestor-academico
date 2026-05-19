@@ -14,6 +14,6 @@ import {
     ...usuariosCommandHandlers,
     ...usuariosQueryHandlers,
   ],
-  exports: [UsuariosService],
+  exports: [CqrsModule, UsuariosService],
 })
 export class UsuariosModule {}

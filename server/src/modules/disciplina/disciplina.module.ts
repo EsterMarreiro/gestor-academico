@@ -14,6 +14,6 @@ import {
     ...disciplinaCommandHandlers,
     ...disciplinaQueryHandlers,
   ],
-  exports: [DisciplinaService],
+  exports: [CqrsModule, DisciplinaService],
 })
 export class DisciplinaModule {}

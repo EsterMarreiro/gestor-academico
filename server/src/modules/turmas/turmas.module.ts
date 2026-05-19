@@ -7,6 +7,6 @@ import { turmasCommandHandlers, turmasQueryHandlers } from './turmas.cqrs';
 @Module({
   imports: [CqrsModule, MessagingRmqModule],
   providers: [TurmasService, ...turmasCommandHandlers, ...turmasQueryHandlers],
-  exports: [TurmasService],
+  exports: [CqrsModule, TurmasService],
 })
 export class TurmasModule {}

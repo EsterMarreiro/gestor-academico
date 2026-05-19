@@ -35,6 +35,6 @@ const eventHandlers = [
     ...queryHandlers,
     ...eventHandlers,
   ],
-  exports: [MatriculaReadRepository, MatriculaWriteRepository],
+  exports: [CqrsModule, MatriculaReadRepository, MatriculaWriteRepository],
 })
 export class MatriculaModule {}

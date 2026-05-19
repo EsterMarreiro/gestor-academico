@@ -7,6 +7,6 @@ import { cursosCommandHandlers, cursosQueryHandlers } from './cursos.cqrs';
 @Module({
   imports: [CqrsModule, MessagingRmqModule],
   providers: [CursosService, ...cursosCommandHandlers, ...cursosQueryHandlers],
-  exports: [CursosService],
+  exports: [CqrsModule, CursosService],
 })
 export class CursosModule {}

@@ -11,9 +11,27 @@ import { MatriculasGatewayModule } from './gateway/matriculas.gateway.module';
 import { AulasGatewayModule } from './gateway/aulas.gateway.module';
 import { AlunosGatewayModule } from './gateway/alunos.gateway.module';
 import { ProfessoresGatewayModule } from './gateway/professores.gateway.module';
+import { NotificacaoModule } from './modules/notificacao/notificacao.module';
+import { CacheConfigurationModule } from './shared/cache/cache.module';
+import Joi from 'joi';
+
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      validationSchema: Joi.object({
+        DATABASE_URL: Joi.string().uri().required(),
+        REDIS_HOST: Joi.string().default('127.0.0.1'),
+        REDIS_PORT: Joi.number().default(6379),
+        REDIS_USERNAME: Joi.string().allow('', null),
+        REDIS_PASSWORD: Joi.string().allow('', null),
+        NODE_ENV: Joi.string()
+          .valid('development', 'production', 'test')
+          .default('development'),
+        PORT: Joi.number().default(3000),
+      }),
+    }),
+    CacheConfigurationModule,
     PrismaModule,
     UsuariosGatewayModule,
     TurmasGatewayModule,
@@ -23,6 +41,7 @@ import { ProfessoresGatewayModule } from './gateway/professores.gateway.module';
     AulasGatewayModule,
     AlunosGatewayModule,
     ProfessoresGatewayModule,
+    NotificacaoModule,
   ],
   controllers: [AppController],
   providers: [AppService],

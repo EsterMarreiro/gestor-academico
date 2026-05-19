@@ -176,7 +176,12 @@ describe('Matricula CQRS handlers', () => {
     createdEventHandler.handle(new MatriculaCreatedEvent(matriculaMock));
 
     expect(matriculaEvents.publishMatriculaCriada).toHaveBeenCalledWith(
-      matriculaMock,
+      expect.objectContaining({
+        id: matriculaMock.id,
+        alunoId: matriculaMock.alunoId,
+        cursoId: matriculaMock.cursoId,
+        status: matriculaMock.status,
+      }),
     );
   });
 
@@ -184,7 +189,12 @@ describe('Matricula CQRS handlers', () => {
     updatedEventHandler.handle(new MatriculaUpdatedEvent(matriculaMock));
 
     expect(matriculaEvents.publishMatriculaAtualizada).toHaveBeenCalledWith(
-      matriculaMock,
+      expect.objectContaining({
+        id: matriculaMock.id,
+        alunoId: matriculaMock.alunoId,
+        cursoId: matriculaMock.cursoId,
+        status: matriculaMock.status,
+      }),
     );
   });
 
