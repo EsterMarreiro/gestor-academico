@@ -25,6 +25,7 @@ async function bootstrap() {
       },
     },
   );
+  app.enableShutdownHooks();
   await app.listen();
   Logger.log(
     `Consumidor RabbitMQ à escuta na fila "${RMQ_QUEUE_MATRICULAS_EVENTS}" (${urls[0]})`,

@@ -11,6 +11,7 @@ async function bootstrap() {
     transport: Transport.TCP,
     options: { host, port },
   });
+  app.enableShutdownHooks();
   app.useGlobalFilters(new HttpToRpcExceptionFilter());
   app.useGlobalPipes(
     new ValidationPipe({

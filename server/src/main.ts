@@ -5,6 +5,7 @@ import { RedisIoAdapter } from './shared/redis-io.adapter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableShutdownHooks();
   app.useWebSocketAdapter(new RedisIoAdapter(app));
 
   const configSwagger = new DocumentBuilder()

@@ -13,6 +13,7 @@ import { AlunosGatewayModule } from './gateway/alunos.gateway.module';
 import { ProfessoresGatewayModule } from './gateway/professores.gateway.module';
 import { NotificacaoModule } from './modules/notificacao/notificacao.module';
 import { CacheConfigurationModule } from './shared/cache/cache.module';
+import { ObservabilityModule } from './shared/observability/observability.module';
 import Joi from 'joi';
 
 @Module({
@@ -31,6 +32,7 @@ import Joi from 'joi';
         PORT: Joi.number().default(3000),
       }),
     }),
+    ObservabilityModule,
     CacheConfigurationModule,
     PrismaModule,
     UsuariosGatewayModule,
