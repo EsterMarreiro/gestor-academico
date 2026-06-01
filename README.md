@@ -1,7 +1,7 @@
 # Gestor Acadêmico Backend
 
-[![CI](https://github.com/<OWNER>/<REPO>/actions/workflows/ci.yml/badge.svg)](https://github.com/<OWNER>/<REPO>/actions/workflows/ci.yml)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=<SONAR_PROJECT_KEY>&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=<SONAR_PROJECT_KEY>)
+[![CI](https://github.com/estermarreiro/gestor-academico/actions/workflows/ci.yml/badge.svg)](https://github.com/estermarreiro/gestor-academico/actions/workflows/ci.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=EsterMarreiro_gestor-academico&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=EsterMarreiro_gestor-academico)
 
 Backend NestJS do sistema de gestão acadêmica. O frontend Angular não existe neste repositório; a API HTTP e os contratos de integração estão preparados para consumo futuro por qualquer cliente web.
 
