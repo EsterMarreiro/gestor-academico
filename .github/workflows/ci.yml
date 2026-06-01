@@ -65,8 +65,6 @@ jobs:
         uses: SonarSource/sonarqube-scan-action@v8.1.0
         with:
           projectBaseDir: server
-          args: >
-            -Dsonar.qualitygate.wait=true
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
