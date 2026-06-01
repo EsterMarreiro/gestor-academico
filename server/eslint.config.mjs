@@ -11,7 +11,8 @@ const tsconfigRootDir = fileURLToPath(new URL('.', import.meta.url));
 export default [
   eslint.configs.recommended,
   {
-    ignores: ['eslint.config.mjs'],
+    files: ['src/**/*.ts', 'test/**/*.ts'],
+    ignores: ['eslint.config.mjs', 'dist/**', 'node_modules/**'],
     languageOptions: {
       globals: {
         ...globals.node,
@@ -20,7 +21,7 @@ export default [
       sourceType: 'module',
       parser,
       parserOptions: {
-        project: './tsconfig.json',
+        project: './tsconfig.eslint.json',
         tsconfigRootDir,
       },
     },

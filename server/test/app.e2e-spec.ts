@@ -1,25 +1,46 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { App } from 'supertest/types';
-import { AppModule } from './../src/app.module';
+import { VersionModule } from '../src/modules/version/version.module';
 
-describe('AppController (e2e)', () => {
+describe('Version endpoint (e2e)', () => {
   let app: INestApplication<App>;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
+    process.env.NODE_ENV = 'test';
+    process.env.BUILD_DATE = '2026-01-01T00:00:00.000Z';
+
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [
+        ConfigModule.forRoot({
+          isGlobal: true,
+          ignoreEnvFile: true,
+        }),
+        VersionModule,
+      ],
     }).compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();
   });
 
-  it('/ (GET)', () => {
+  afterAll(async () => {
+    delete process.env.BUILD_DATE;
+    await app.close();
+  });
+
+  it('GET /api/v1/version', () => {
     return request(app.getHttpServer())
-      .get('/')
+      .get('/api/v1/version')
       .expect(200)
-      .expect('Hello World!');
+      .expect(({ body }) => {
+        expect(body).toMatchObject({
+          version: '0.1.0',
+          environment: 'test',
+          buildDate: '2026-01-01T00:00:00.000Z',
+        });
+      });
   });
 });

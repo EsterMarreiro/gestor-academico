@@ -1,336 +1,191 @@
- # Bounded Context — Sistema de Gestão Acadêmica
+# Gestor Acadêmico Backend
 
-## Tema
-Sistema web para gestão acadêmica com controle de alunos, professores e administradores, cobrindo matrículas, turmas, notas e comunicação interna. Arquitetura em monolito modular, podendo ser migrado para microsserviços no futuro para questões de mensageria e notificações.
+[![CI](https://github.com/estermarreiro/gestor-academico/actions/workflows/ci.yml/badge.svg)](https://github.com/estermarreiro/gestor-academico/actions/workflows/ci.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=EsterMarreiro_gestor-academico&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=EsterMarreiro_gestor-academico)
 
----
+Backend NestJS do sistema de gestão acadêmica. O frontend Angular não existe neste repositório; a API HTTP e os contratos de integração estão preparados para consumo futuro por qualquer cliente web.
 
-## Perfis de Usuário
-| Perfil | Responsabilidades |
-|---|---|
-| `ADMIN` | Gerencia usuários, cursos, turmas e relatórios |
-| `PROFESSOR` | Gerencia turmas, lança notas e presenças |
-| `ALUNO` | Acessa turmas, notas, materiais e comunicados |
+## Estrutura
 
----
-
-## 🧩 Entidades
-| Entidade | Descrição |
-|---|---|
-| `Usuario` | Dados pessoais, endereço e tipo de perfil (ADMIN, PROFESSOR, ALUNO) |
-| `Curso` | Agrupa disciplinas de uma grade curricular |
-| `Disciplina` | Matéria pertencente a um curso com carga horária |
-| `Turma` | Oferta de uma disciplina em um período com professor e vagas |
-| `Matricula` | Vínculo entre aluno e turma |
-| `Aula` | Registro de aula de uma turma com data e conteúdo |
-| `Presenca` | Registro de presença do aluno por aula |
-| `Avaliacao` | Lançamento de nota por aluno/turma com tipo e resultado |
-| `Notificacao` | Comunicados internos enviados aos usuários |
-
----
-
-## Value Objects
-| Value Object | Atributos |
-|---|---|
-| `Endereco` | rua, numero, bairro, cidade, estado, cep |
-| `Resultado` | valor, peso |
-| `PeriodoAcademico` | semestre, ano |
-
----
-
-## Organização em Camadas
-```
-server/src/
-├── modules/
-│   ├── usuarios/
-│   ├── auth/
-│   ├── cursos/
-│   ├── disciplinas/
-│   ├── turmas/
-│   ├── matriculas/
-│   ├── aulas/
-│   ├── avaliacoes/
-│   └── notificacoes/
-└── shared/
-    ├── prisma/
-    ├── guards/
-    ├── decorators/
-    └── interceptors/
+```text
+.
+├── .github/workflows/ci.yml
+├── .husky/commit-msg
+├── CHANGELOG.md
+├── commitlint.config.js
+├── package.json
+├── server/
+│   ├── package.json
+│   ├── src/
+│   └── test/
+└── sonar-project.properties
 ```
 
-## 🔧 Infraestrutura
-| Recurso | Tecnologia |
-|---|---|
-| Backend | NestJS |
-| Frontend | React Native |
-| Banco de dados | PostgreSQL + Prisma 6 |
-| Autenticação | JWT |
-| Cache | Redis |
-| Containerização | Docker + Docker Compose |
+## Requisitos
 
----
+- Node.js LTS
+- npm
+- PostgreSQL para uso completo da aplicação
+- Redis opcional para cache distribuido
 
-# 📚 Identificação de Entidades e Value Objects
+## Instalação
 
-Na **Plataforma de Gestão Acadêmica Simplificada**, alguns elementos possuem **identidade própria e ciclo de vida**, sendo classificados como **Entidades**.
+```bash
+npm ci
+npm ci --prefix server
+```
 
-Outros são definidos apenas por seus **atributos**, não possuindo identidade única, sendo classificados como **Value Objects**.
+## Execução
 
----
+```bash
+npm run build
+npm --prefix server run start:dev
+```
 
-# 🧩 Entidades
+Variáveis relevantes:
 
-## 👨‍🎓 Aluno
-Representa um estudante dentro da instituição e possui identidade única.
+- `DATABASE_URL`: conexão do Prisma.
+- `NODE_ENV`: `development`, `test` ou `production`.
+- `BUILD_DATE`: opcional. Se não for definida, o backend gera a data automaticamente no bootstrap do módulo de versão.
+- `PORT`: porta HTTP do gateway.
 
-**Atributos possíveis:**
+## Endpoint de versão
 
-- `id`
-- `nome`
-- `email`
-- `matricula`
-- `curso`
-- `data_de_ingresso`
-- `status`
+Endpoint HTTP disponível em `GET /api/v1/version`.
 
-**Importância da entidade:**
+Resposta esperada:
 
-A identidade do aluno é fundamental para:
+```json
+{
+  "version": "0.1.0",
+  "environment": "development",
+  "buildDate": "2026-01-01T00:00:00.000Z"
+}
+```
 
-- Realizar matrículas  
-- Receber avaliações  
-- Receber notificações acadêmicas  
+Origem dos dados:
 
----
+- `version`: lida de `server/package.json`
+- `environment`: lida de `NODE_ENV`
+- `buildDate`: lida de `BUILD_DATE` ou gerada automaticamente
 
-## 📖 Disciplina
-Representa uma matéria oferecida pela instituição.
+## Testes
 
-**Atributos possíveis:**
+```bash
+npm run test
+npm run test:e2e
+npm run test:cov
+```
 
-- `id`
-- `nome`
-- `carga_horaria`
-- `professor`
-- `periodo`
-- `numero_de_vagas`
+A meta configurada é `>= 70%` de cobertura global para o escopo analisado em Jest e SonarCloud.
 
-**Função no sistema:**
+## Lint e Qualidade
 
-Sua identidade permite que a disciplina seja referenciada em:
+```bash
+npm run lint
+npm run lint:fix
+```
 
-- Matrículas  
-- Avaliações  
+O ESLint da aplicação roda em `server/` e a pipeline falha caso lint, build, testes unitários, e2e ou coverage falhem.
 
----
+## Conventional Commits e Husky
 
-## 📝 Matrícula
-Representa o vínculo entre **Aluno** e **Disciplina**.
+Commits devem seguir o padrão Conventional Commits, por exemplo:
 
-**Atributos possíveis:**
+```text
+feat: adiciona endpoint de versão
+fix: corrige serialização do build date
+chore: atualiza pipeline de ci
+```
 
-- `id`
-- `aluno_id`
-- `disciplina_id`
-- `data_matricula`
-- `status`
+Arquivos de automação:
 
-**Função no sistema:**
+- `commitlint.config.js`
+- `.husky/commit-msg`
 
-Essa entidade registra quando um aluno está cursando determinada disciplina.
+Após instalar dependências, execute:
 
----
+```bash
+npm run prepare
+```
 
-## 📊 Avaliação
-Representa uma avaliação aplicada dentro de uma disciplina.
+O hook `commit-msg` bloqueia commits inválidos com `commitlint`.
 
-**Atributos possíveis:**
+## Versionamento Semântico
 
-- `id`
-- `aluno_id`
-- `disciplina_id`
-- `tipo` (prova, trabalho, atividade)
-- `resultado`
-- `data_avaliacao`
-- `nota`
+Foi adotado `standard-version` por ser uma solução estável e pragmática para um backend NestJS que não precisa publicar pacote no npm, mas precisa:
 
-**Função no sistema:**
+- versionar `package.json`
+- gerar `CHANGELOG.md`
+- criar tags semânticas como `v0.1.0`
 
-Permite registrar o **desempenho acadêmico do aluno**.
+Comandos:
 
----
+```bash
+npm run release:first
+npm run release
+```
 
-## 🔔 Notificação
-Representa mensagens enviadas ao aluno.
+Fluxo recomendado:
 
-**Atributos possíveis:**
+1. Faça merge de commits válidos em `develop`.
+2. Crie `release/*` a partir de `develop`.
+3. Execute `npm run release` na branch de release.
+4. Valide pipeline e merge em `main`.
+5. Publique a tag criada.
 
-- `id`
-- `aluno_id`
-- `mensagem`
-- `tipo`
-- `data_envio`
-- `status`
+## Git Flow
 
-**Pode ser utilizada para:**
+Branches oficiais:
 
-- Avisos de matrícula  
-- Divulgação de resultados  
-- Comunicados institucionais  
+- `main`: produção
+- `develop`: integração contínua
+- `feature/*`: novas funcionalidades
+- `hotfix/*`: correções urgentes saindo de `main`
+- `release/*`: preparação de versão
 
----
+Fluxo resumido:
 
-# 📦 Value Objects
+1. `feature/*` nasce de `develop` e retorna para `develop`.
+2. `release/*` nasce de `develop`, recebe ajustes finais e volta para `main` e `develop`.
+3. `hotfix/*` nasce de `main`, corrige produção e volta para `main` e `develop`.
 
+## CI/CD com GitHub Actions
 
-## 📍 Endereço
-Composto por:
+Workflow: `.github/workflows/ci.yml`
 
-- `rua`
-- `numero`
-- `bairro`
-- `cidade`
-- `estado`
-- `cep`
+Etapas executadas:
 
-Dois endereços são considerados iguais se **todos os atributos forem iguais**.
+1. Install
+2. Lint
+3. Build
+4. Unit Tests
+5. Integration Tests
+6. Coverage
+7. SonarCloud Analysis
 
----
+O workflow usa Node LTS com cache de dependências e aguarda o Quality Gate do SonarCloud.
 
-## 📊 Resultado
-Composto por:
+## SonarCloud
 
-- `valor`
-- `peso`
+Arquivo base: `sonar-project.properties`
 
-Representa o valor de uma avaliação e é utilizado dentro da entidade **Avaliação**.
+Configurar no GitHub:
 
----
+- Secret `SONAR_TOKEN`
 
-## 📅 Período Acadêmico
-Composto por:
+Substituir placeholders:
 
-- `semestre`
-- `ano`
+- `your-sonarcloud-org`
+- `your-sonarcloud-org_gestor-academico`
+- `<SONAR_PROJECT_KEY>` no badge do README
+- `<OWNER>` e `<REPO>` no badge do GitHub Actions
 
-Define o período acadêmico de uma disciplina.
+Meta esperada:
 
----
+- Coverage on New Code `>= 70%`
+- Quality Gate `PASSED`
 
-## ✉️ Email
-Composto por:
+## Frontend
 
-- `endereco`
-
-Representa o endereço eletrônico de um aluno.
-
-# 🧭 Definição de Bounded Contexts
-
-Na **Plataforma de Gestão Acadêmica Simplificada**, os módulos podem ser organizados em diferentes **Bounded Contexts**, onde cada contexto possui seu próprio **modelo de domínio** e **linguagem ubíqua**.
-
----
-
-## 👨‍🎓 1. Contexto de Alunos (Student Context)
-
-**Linguagem Ubíqua**
-
-- Aluno
-- Cadastro
-- Perfil
-- Curso
-- Informações Acadêmicas
-
-**Entidade Principal**
-
-- `Aluno`
-
-**Responsabilidades**
-
-- Gerenciar cadastro de alunos  
-- Atualizar informações acadêmicas  
-- Consultar dados do aluno  
-
----
-
-## 📚 2. Contexto de Disciplinas (Course Context)
-
-**Linguagem Ubíqua**
-
-- Disciplina
-- Professor
-- Carga Horária
-- Turma
-
-**Entidades Principais**
-
-- `Disciplina`
-- `Período`
-
-**Responsabilidades**
-
-- Gerenciar disciplinas oferecidas  
-- Definir carga horária  
-- Organizar disciplinas por período  
-
----
-
-## 📝 3. Contexto de Matrículas (Enrollment Context)
-
-**Linguagem Ubíqua**
-
-- Matrícula
-- Aluno Matriculado
-- Inscrição
-- Cancelamento
-
-**Entidade Principal**
-
-- `Matrícula`
-
-**Responsabilidades**
-
-- Registrar matrícula em disciplinas  
-- Controlar status da matrícula  
-- Emitir eventos de matrícula  
-
----
-
-## 📊 4. Contexto de Avaliações (Assessment Context)
-
-**Linguagem Ubíqua**
-
-- Avaliação
-- Prova
-- Resultado
-- Nota
-
-**Entidade Principal**
-
-- `Avaliação`
-
-**Responsabilidades**
-
-- Registrar avaliações  
-- Calcular notas  
-- Consultar desempenho acadêmico  
-
----
-
-## 🔔 5. Contexto de Notificações (Notification Context)
-
-**Linguagem Ubíqua**
-
-- Notificação
-- Mensagem
-- Alerta
-- Comunicado
-
-**Entidade Principal**
-
-- `Notificação`
-
-**Responsabilidades**
-
-- Enviar notificações aos alunos  
-- Informar novas matrículas  
-- Avisar divulgação de notas  
+Não existe frontend Angular neste repositório. O backend ficou preparado para integração via endpoint versionado, documentação da API e pipeline de qualidade.
