@@ -1,6 +1,27 @@
 {
+  "name": "gestor-academico",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix server run build",
+    "lint": "npm --prefix server run lint",
+    "lint:fix": "npm --prefix server run lint:fix",
+    "test": "npm --prefix server run test -- --runInBand",
+    "test:watch": "npm --prefix server run test:watch",
+    "test:cov": "npm --prefix server run test:cov -- --runInBand",
+    "test:e2e": "npm --prefix server run test:e2e",
+    "release": "standard-version",
+    "release:first": "standard-version --first-release",
+    "prepare": "husky"
+  },
   "dependencies": {
     "@nestjs/swagger": "^11.2.6",
     "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^20.1.0",
+    "@commitlint/config-conventional": "^20.0.0",
+    "husky": "^9.1.7",
+    "standard-version": "^9.5.0"
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "server",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "",
   "author": "",
   "private": true,
@@ -32,12 +32,13 @@
     "start:alunos-ms:dev": "ts-node -r tsconfig-paths/register src/main.alunos-ms.ts",
     "start:professores-ms:dev": "ts-node -r tsconfig-paths/register src/main.professores-ms.ts",
     "start:stack:dev": "npm run start:dev",
-    "lint": "eslint src --ext .ts --fix",
+    "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\"",
+    "lint:fix": "eslint \"src/**/*.ts\" \"test/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test:e2e": "jest --runInBand --config ./test/jest-e2e.json",
     "postinstall": "prisma generate"
   },
   "dependencies": {
@@ -68,6 +69,8 @@
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
+    "@commitlint/cli": "^20.5.3",
+    "@commitlint/config-conventional": "^20.5.3",
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",
     "@nestjs/cli": "^11.0.0",
@@ -85,10 +88,12 @@
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",
     "globals": "^16.0.0",
+    "husky": "^9.1.7",
     "jest": "^30.0.0",
     "prettier": "^3.4.2",
     "prisma": "^6.19.3",
     "source-map-support": "^0.5.21",
+    "standard-version": "^9.5.0",
     "supertest": "^7.0.0",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
@@ -107,9 +112,31 @@
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "collectCoverageFrom": [
-      "**/*.(t|j)s"
+      "app.controller.ts",
+      "app.service.ts",
+      "gateway/**/*.controller.ts",
+      "!gateway/alunos.gateway.controller.ts",
+      "!gateway/professores.gateway.controller.ts",
+      "modules/cursos/cursos.service.ts",
+      "modules/matricula/commands/**/*.ts",
+      "modules/matricula/events/impl/**/*.ts",
+      "modules/matricula/handlers/**/*.ts",
+      "modules/matricula/queries/**/*.ts",
+      "modules/matricula/matricula.tcp.controller.ts",
+      "modules/usuarios/usuarios.service.ts",
+      "modules/version/**/*.ts",
+      "!modules/version/**/*.dto.ts",
+      "!modules/version/**/*.module.ts"
     ],
     "coverageDirectory": "../coverage",
+    "coverageThreshold": {
+      "global": {
+        "branches": 70,
+        "functions": 70,
+        "lines": 70,
+        "statements": 70
+      }
+    },
     "testEnvironment": "node"
   }
 }

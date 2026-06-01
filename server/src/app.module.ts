@@ -14,6 +14,7 @@ import { ProfessoresGatewayModule } from './gateway/professores.gateway.module';
 import { NotificacaoModule } from './modules/notificacao/notificacao.module';
 import { CacheConfigurationModule } from './shared/cache/cache.module';
 import { ObservabilityModule } from './shared/observability/observability.module';
+import { VersionModule } from './modules/version/version.module';
 import Joi from 'joi';
 
 @Module({
@@ -21,7 +22,11 @@ import Joi from 'joi';
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: Joi.object({
-        DATABASE_URL: Joi.string().uri().required(),
+        DATABASE_URL: Joi.string()
+          .uri()
+          .default(
+            'postgresql://postgres:postgres@localhost:5432/gestor_academico?schema=public',
+          ),
         REDIS_HOST: Joi.string().default('127.0.0.1'),
         REDIS_PORT: Joi.number().default(6379),
         REDIS_USERNAME: Joi.string().allow('', null),
@@ -29,6 +34,7 @@ import Joi from 'joi';
         NODE_ENV: Joi.string()
           .valid('development', 'production', 'test')
           .default('development'),
+        BUILD_DATE: Joi.string().isoDate().optional(),
         PORT: Joi.number().default(3000),
       }),
     }),
@@ -44,6 +50,7 @@ import Joi from 'joi';
     AlunosGatewayModule,
     ProfessoresGatewayModule,
     NotificacaoModule,
+    VersionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

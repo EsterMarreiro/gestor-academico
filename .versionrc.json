@@ -1,0 +1,11 @@
+{
+  "tagPrefix": "v",
+  "packageFiles": [
+    "package.json",
+    "server/package.json"
+  ],
+  "bumpFiles": [
+    "package.json",
+    "server/package.json"
+  ]
+}
