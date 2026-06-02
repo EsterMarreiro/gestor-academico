@@ -1,13 +1,13 @@
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { Transport } from '@nestjs/microservices';
-import { DisciplinasMsAppModule } from './microservice-apps/disciplinas-ms-app.module';
+import { AlunosTurmaMsAppModule } from './microservice-apps/alunos-turma-ms-app.module';
 import { HttpToRpcExceptionFilter } from './shared/filters/http-to-rpc-exception.filter';
 
 async function bootstrap() {
-  const port = parseInt(process.env.DISCIPLINAS_MS_PORT ?? '4004', 10);
-  const host = process.env.DISCIPLINAS_MS_BIND ?? '0.0.0.0';
-  const app = await NestFactory.createMicroservice(DisciplinasMsAppModule, {
+  const port = parseInt(process.env.ALUNOS_TURMA_MS_PORT ?? '4009', 10);
+  const host = process.env.ALUNOS_TURMA_MS_BIND ?? '0.0.0.0';
+  const app = await NestFactory.createMicroservice(AlunosTurmaMsAppModule, {
     transport: Transport.TCP,
     options: { host, port },
   });
@@ -22,8 +22,8 @@ async function bootstrap() {
   await app.listen();
 
   Logger.log(
-    `Microserviço de disciplinas TCP escutando em ${host}:${port}`,
-    'DisciplinasMS',
+    `Microserviço de alunos-turma TCP escutando em ${host}:${port}`,
+    'AlunosTurmaMS',
   );
 }
 

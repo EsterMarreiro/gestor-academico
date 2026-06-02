@@ -61,3 +61,19 @@ export const PROFESSOR_MSG = {
   update: 'professores.update',
   remove: 'professores.remove',
 } as const;
+
+export const ALUNO_TURMA_MSG = {
+  create: 'alunos-turma.create',
+  findAll: 'alunos-turma.findAll',
+  findOne: 'alunos-turma.findOne',
+  update: 'alunos-turma.update',
+  remove: 'alunos-turma.remove',
+} as const;
+
+export const INSCRICAO_PROFESSOR_MSG = {
+  create: 'inscricoes-professor.create',
+  findAll: 'inscricoes-professor.findAll',
+  findOne: 'inscricoes-professor.findOne',
+  update: 'inscricoes-professor.update',
+  remove: 'inscricoes-professor.remove',
+} as const;

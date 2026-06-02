@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { Transport } from '@nestjs/microservices';
 import { TurmasMsAppModule } from './microservice-apps/turmas-ms-app.module';
@@ -13,6 +13,12 @@ async function bootstrap() {
   });
   app.enableShutdownHooks();
   app.useGlobalFilters(new HttpToRpcExceptionFilter());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+    }),
+  );
   await app.listen();
 
   Logger.log(

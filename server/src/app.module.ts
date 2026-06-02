@@ -11,7 +11,8 @@ import { MatriculasGatewayModule } from './gateway/matriculas.gateway.module';
 import { AulasGatewayModule } from './gateway/aulas.gateway.module';
 import { AlunosGatewayModule } from './gateway/alunos.gateway.module';
 import { ProfessoresGatewayModule } from './gateway/professores.gateway.module';
-import { NotificacaoModule } from './modules/notificacao/notificacao.module';
+import { AlunosTurmaGatewayModule } from './gateway/alunos-turma.gateway.module';
+import { InscricoesProfessorGatewayModule } from './gateway/inscricoes-professor.gateway.module';
 import { CacheConfigurationModule } from './shared/cache/cache.module';
 import { ObservabilityModule } from './shared/observability/observability.module';
 import { VersionModule } from './modules/version/version.module';
@@ -49,7 +50,8 @@ import Joi from 'joi';
     AulasGatewayModule,
     AlunosGatewayModule,
     ProfessoresGatewayModule,
-    NotificacaoModule,
+    AlunosTurmaGatewayModule,
+    InscricoesProfessorGatewayModule,
     VersionModule,
   ],
   controllers: [AppController],
