@@ -1,31 +1,30 @@
-FROM node:22-alpine AS builder
+FROM node:22-alpine AS base
 
 WORKDIR /app
 
 COPY package*.json ./
 COPY prisma ./prisma/
 
-RUN npm install
-RUN npx prisma generate
+FROM base AS builder
+
+RUN npm ci
 
 COPY . .
 
 RUN npm run build
 
-# ---
-
 FROM node:22-alpine AS production
 
 WORKDIR /app
 
+ENV NODE_ENV=production
+
 COPY package*.json ./
 COPY prisma ./prisma/
-
-RUN npm install --only=production
-RUN npx prisma generate
+RUN npm ci --omit=dev && npm cache clean --force
 
 COPY --from=builder /app/dist ./dist
 
-EXPOSE 3000 4001 4002 4003 4004 4005 4006 4007 4008
+EXPOSE 3000 4001 4002 4003 4004 4005 4007 4008 4009 4010
 
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]
+CMD ["node", "dist/main.js"]
