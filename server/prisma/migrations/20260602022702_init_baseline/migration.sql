@@ -1,31 +1,8 @@
-/*
-  Warnings:
-
-  - You are about to drop the `Curso` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Disciplina` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Usuario` table. If the table is not empty, all the data it contains will be lost.
-
-*/
 -- CreateEnum
 CREATE TYPE "StatusMatricula" AS ENUM ('pendente', 'ativa', 'em_fila', 'recusada');
 
 -- CreateEnum
 CREATE TYPE "StatusInscricaoProfessor" AS ENUM ('pendente', 'aprovada', 'recusada');
-
--- DropForeignKey
-ALTER TABLE "Disciplina" DROP CONSTRAINT "Disciplina_cursoId_fkey";
-
--- DropTable
-DROP TABLE "Curso";
-
--- DropTable
-DROP TABLE "Disciplina";
-
--- DropTable
-DROP TABLE "Usuario";
-
--- DropEnum
-DROP TYPE "TipoUsuario";
 
 -- CreateTable
 CREATE TABLE "usuario" (
@@ -36,6 +13,12 @@ CREATE TABLE "usuario" (
     "cpf" TEXT NOT NULL,
     "telefone" TEXT NOT NULL,
     "data_nascimento" DATE NOT NULL,
+    "cep" TEXT NOT NULL,
+    "estado" TEXT NOT NULL,
+    "cidade" TEXT NOT NULL,
+    "rua" TEXT NOT NULL,
+    "numero" TEXT NOT NULL,
+    "complemento" TEXT,
     "is_admin" BOOLEAN NOT NULL DEFAULT false,
     "criado_em" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "atualizado_em" TIMESTAMP(3) NOT NULL,
