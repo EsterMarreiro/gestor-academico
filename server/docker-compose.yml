@@ -168,29 +168,6 @@ services:
       rabbitmq:
         condition: service_healthy
 
-  aulas-ms:
-    build:
-      context: .
-      target: builder
-    container_name: gestor-academico-aulas-ms
-    environment:
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/gestor_academico
-      NODE_ENV: development
-      AULAS_MS_PORT: 4006
-      AULAS_MS_BIND: 0.0.0.0
-      RABBITMQ_URL: amqp://gestor:gestor@rabbitmq:5672
-    volumes:
-      - .:/app
-      - /app/node_modules
-    command: npm run start:aulas-ms:dev
-    depends_on:
-      db:
-        condition: service_healthy
-      migrate:
-        condition: service_completed_successfully
-      rabbitmq:
-        condition: service_healthy
-
   alunos-ms:
     build:
       context: .
@@ -237,6 +214,46 @@ services:
       rabbitmq:
         condition: service_healthy
 
+  alunos-turma-ms:
+    build:
+      context: .
+      target: builder
+    container_name: gestor-academico-alunos-turma-ms
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/gestor_academico
+      NODE_ENV: development
+      ALUNOS_TURMA_MS_PORT: 4009
+      ALUNOS_TURMA_MS_BIND: 0.0.0.0
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run start:alunos-turma-ms:dev
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  inscricoes-professor-ms:
+    build:
+      context: .
+      target: builder
+    container_name: gestor-academico-inscricoes-professor-ms
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/gestor_academico
+      NODE_ENV: development
+      INSCRICOES_PROFESSOR_MS_PORT: 4010
+      INSCRICOES_PROFESSOR_MS_BIND: 0.0.0.0
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run start:inscricoes-professor-ms:dev
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
   gateway:
     build:
       context: .
@@ -259,12 +276,14 @@ services:
       DISCIPLINAS_MS_PORT: 4004
       MATRICULAS_MS_HOST: matriculas-ms
       MATRICULAS_MS_PORT: 4005
-      AULAS_MS_HOST: aulas-ms
-      AULAS_MS_PORT: 4006
       ALUNOS_MS_HOST: alunos-ms
       ALUNOS_MS_PORT: 4007
       PROFESSORES_MS_HOST: professores-ms
       PROFESSORES_MS_PORT: 4008
+      ALUNOS_TURMA_MS_HOST: alunos-turma-ms
+      ALUNOS_TURMA_MS_PORT: 4009
+      INSCRICOES_PROFESSOR_MS_HOST: inscricoes-professor-ms
+      INSCRICOES_PROFESSOR_MS_PORT: 4010
     volumes:
       - .:/app
       - /app/node_modules
@@ -286,11 +305,13 @@ services:
         condition: service_started
       matriculas-ms:
         condition: service_started
-      aulas-ms:
-        condition: service_started
       alunos-ms:
         condition: service_started
       professores-ms:
+        condition: service_started
+      alunos-turma-ms:
+        condition: service_started
+      inscricoes-professor-ms:
         condition: service_started
 
   db:
