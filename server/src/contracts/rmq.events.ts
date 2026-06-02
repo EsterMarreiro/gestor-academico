@@ -36,10 +36,6 @@ export const TURMA_CRIADA_EVENT = 'turma.criada' as const;
 export const TURMA_ATUALIZADA_EVENT = 'turma.atualizada' as const;
 export const TURMA_REMOVIDA_EVENT = 'turma.removida' as const;
 
-export const AULA_CRIADA_EVENT = 'aula.criada' as const;
-export const AULA_ATUALIZADA_EVENT = 'aula.atualizada' as const;
-export const AULA_REMOVIDA_EVENT = 'aula.removida' as const;
-
 export const ALUNO_CRIADO_EVENT = 'aluno.criado' as const;
 export const ALUNO_ATUALIZADO_EVENT = 'aluno.atualizado' as const;
 export const ALUNO_REMOVIDO_EVENT = 'aluno.removido' as const;

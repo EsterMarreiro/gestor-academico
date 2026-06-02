@@ -1,9 +1,6 @@
 import { Controller, Logger } from '@nestjs/common';
 import { EventPattern, Payload } from '@nestjs/microservices';
 import {
-  AULA_ATUALIZADA_EVENT,
-  AULA_CRIADA_EVENT,
-  AULA_REMOVIDA_EVENT,
   ALUNO_ATUALIZADO_EVENT,
   ALUNO_CRIADO_EVENT,
   ALUNO_REMOVIDO_EVENT,
@@ -78,23 +75,6 @@ export class DomainRmqEventsController {
   @EventPattern(TURMA_REMOVIDA_EVENT)
   handleTurmaRemovida(@Payload() data: Record<string, unknown>): void {
     this.logger.log(`[mensageria] Turma removida: id=${data['turmaId']}`);
-  }
-
-  @EventPattern(AULA_CRIADA_EVENT)
-  handleAulaCriada(@Payload() data: Record<string, unknown>): void {
-    this.logger.log(
-      `[mensageria] Aula criada: id=${data['aulaId']} turma=${data['turmaId']}`,
-    );
-  }
-
-  @EventPattern(AULA_ATUALIZADA_EVENT)
-  handleAulaAtualizada(@Payload() data: Record<string, unknown>): void {
-    this.logger.log(`[mensageria] Aula atualizada: id=${data['aulaId']}`);
-  }
-
-  @EventPattern(AULA_REMOVIDA_EVENT)
-  handleAulaRemovida(@Payload() data: Record<string, unknown>): void {
-    this.logger.log(`[mensageria] Aula removida: id=${data['aulaId']}`);
   }
 
   @EventPattern(ALUNO_CRIADO_EVENT)

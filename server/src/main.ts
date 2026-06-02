@@ -19,7 +19,7 @@ async function bootstrap() {
     .setTitle('Gestão Acadêmica Simplificada')
     .setDescription(
       'Gateway HTTP público da API acadêmica. Usuários, turmas, cursos, ' +
-        'disciplinas, matrículas, aulas, alunos, professores, vínculos aluno-turma e inscrições de professor ' +
+        'disciplinas, matrículas, alunos, professores, vínculos aluno-turma e inscrições de professor ' +
         'são expostos por REST e roteados para microserviços TCP.',
     )
     .setVersion('1.0')
@@ -28,7 +28,6 @@ async function bootstrap() {
     .addTag('Disciplinas')
     .addTag('Turmas')
     .addTag('Matrículas')
-    .addTag('Aulas')
     .addTag('Alunos')
     .addTag('Professores')
     .addTag('AlunoTurma')

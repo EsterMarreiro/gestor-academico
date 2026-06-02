@@ -38,14 +38,6 @@ export const MATRICULA_MSG = {
   remove: 'matriculas.remove',
 } as const;
 
-export const AULA_MSG = {
-  create: 'aulas.create',
-  findAll: 'aulas.findAll',
-  findOne: 'aulas.findOne',
-  update: 'aulas.update',
-  remove: 'aulas.remove',
-} as const;
-
 export const ALUNO_MSG = {
   create: 'alunos.create',
   findAll: 'alunos.findAll',

@@ -8,7 +8,6 @@ import { TurmasGatewayModule } from './gateway/turmas.gateway.module';
 import { CursosGatewayModule } from './gateway/cursos.gateway.module';
 import { DisciplinasGatewayModule } from './gateway/disciplinas.gateway.module';
 import { MatriculasGatewayModule } from './gateway/matriculas.gateway.module';
-import { AulasGatewayModule } from './gateway/aulas.gateway.module';
 import { AlunosGatewayModule } from './gateway/alunos.gateway.module';
 import { ProfessoresGatewayModule } from './gateway/professores.gateway.module';
 import { AlunosTurmaGatewayModule } from './gateway/alunos-turma.gateway.module';
@@ -47,7 +46,6 @@ import Joi from 'joi';
     CursosGatewayModule,
     DisciplinasGatewayModule,
     MatriculasGatewayModule,
-    AulasGatewayModule,
     AlunosGatewayModule,
     ProfessoresGatewayModule,
     AlunosTurmaGatewayModule,
