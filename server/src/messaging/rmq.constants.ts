@@ -3,3 +3,7 @@ export const RMQ_CLIENT_MATRICULA_EVENTS = 'RMQ_CLIENT_MATRICULA_EVENTS';
 
 /** Fila durável partilhada entre produtor (matrículas-ms) e consumidor RMQ. */
 export const RMQ_QUEUE_MATRICULAS_EVENTS = 'gestor_academico_matriculas_events';
+
+export const RMQ_EVENTS_EXCHANGE = 'gestor_academico.events';
+export const RMQ_EVENTS_EXCHANGE_TYPE = 'topic' as const;
+export const RMQ_QUEUE_NOTIFICACOES = 'gestor_academico.notificacoes';
