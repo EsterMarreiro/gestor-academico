@@ -4,7 +4,7 @@ import {
   IsString,
   Length,
   IsOptional,
-  IsDateString,
+  IsDate,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform, TransformFnParams } from 'class-transformer';
@@ -38,11 +38,17 @@ export class CreateUsuarioDto {
   @ApiProperty({
     description: 'Data de nascimento do usuário (formato ISO 8601)',
   })
-  @IsDateString({}, { message: 'Data de nascimento inválida' })
+  @Transform(({ value }: TransformFnParams) => {
+    if (value instanceof Date) {
+      return value;
+    }
+    if (typeof value === 'string' || typeof value === 'number') {
+      return new Date(value);
+    }
+    return value;
+  })
+  @IsDate({ message: 'Data de nascimento inválida' })
   @IsNotEmpty({ message: 'A data de nascimento é obrigatória' })
-  @Transform(({ value }: TransformFnParams) =>
-    typeof value === 'string' ? new Date(value) : value,
-  )
   dataNascimento: Date;
 
   @ApiProperty({ description: 'CEP do usuário' })
