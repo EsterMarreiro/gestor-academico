@@ -13,7 +13,10 @@ export type RabbitMqSubscriptionOptions<TPayload> = {
   queue: string;
   routingKeys: string[];
   consumerTag: string;
-  onMessage: (payload: TPayload) => Promise<void> | void;
+  onMessage: (
+    payload: TPayload,
+    meta: { routingKey: string },
+  ) => Promise<void> | void;
   prefetch?: number;
 };
 
@@ -119,7 +122,9 @@ export class RabbitMqConnectionService implements OnModuleDestroy {
   ) {
     try {
       const payload = JSON.parse(message.content.toString('utf-8')) as TPayload;
-      await options.onMessage(payload);
+      await options.onMessage(payload, {
+        routingKey: message.fields.routingKey,
+      });
       channel.ack(message);
     } catch (error) {
       this.logger.warn(

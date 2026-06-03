@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { redisStore } from 'cache-manager-redis-store';
+import { GatewayCacheService } from './gateway-cache.service';
 
 @Module({
   imports: [
@@ -11,11 +12,14 @@ import { redisStore } from 'cache-manager-redis-store';
       inject: [ConfigService],
       useFactory: async (config: ConfigService) => {
         try {
+          const redisUrl =
+            config.get('REDIS_URL') ||
+            `redis://${config.get('REDIS_HOST', '127.0.0.1')}:${Number(
+              config.get('REDIS_PORT', 6379),
+            )}`;
+
           const store = await redisStore({
-            socket: {
-              host: config.get('REDIS_HOST', '127.0.0.1'),
-              port: Number(config.get('REDIS_PORT', 6379)),
-            },
+            url: redisUrl,
             password: config.get('REDIS_PASSWORD') ?? undefined,
             username: config.get('REDIS_USERNAME') ?? undefined,
           });
@@ -37,6 +41,7 @@ import { redisStore } from 'cache-manager-redis-store';
       },
     }),
   ],
-  exports: [CacheModule],
+  providers: [GatewayCacheService],
+  exports: [CacheModule, GatewayCacheService],
 })
 export class CacheConfigurationModule {}

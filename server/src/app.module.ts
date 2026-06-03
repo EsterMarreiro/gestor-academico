@@ -15,6 +15,7 @@ import { InscricoesProfessorGatewayModule } from './gateway/inscricoes-professor
 import { CacheConfigurationModule } from './shared/cache/cache.module';
 import { ObservabilityModule } from './shared/observability/observability.module';
 import { VersionModule } from './modules/version/version.module';
+import { RealtimeModule } from './realtime/realtime.module';
 import Joi from 'joi';
 
 @Module({
@@ -29,8 +30,10 @@ import Joi from 'joi';
           ),
         REDIS_HOST: Joi.string().default('127.0.0.1'),
         REDIS_PORT: Joi.number().default(6379),
+        REDIS_URL: Joi.string().uri().optional(),
         REDIS_USERNAME: Joi.string().allow('', null),
         REDIS_PASSWORD: Joi.string().allow('', null),
+        WS_CORS_ORIGIN: Joi.string().default('*'),
         NODE_ENV: Joi.string()
           .valid('development', 'production', 'test')
           .default('development'),
@@ -43,6 +46,7 @@ import Joi from 'joi';
     }),
     ObservabilityModule,
     CacheConfigurationModule,
+    RealtimeModule,
     PrismaModule,
     UsuariosGatewayModule,
     TurmasGatewayModule,
