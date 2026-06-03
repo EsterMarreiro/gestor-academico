@@ -36,6 +36,9 @@ import Joi from 'joi';
           .default('development'),
         BUILD_DATE: Joi.string().isoDate().optional(),
         PORT: Joi.number().default(3000),
+        RABBITMQ_URL: Joi.string()
+          .uri()
+          .default('amqp://gestor:gestor@127.0.0.1:5672'),
       }),
     }),
     ObservabilityModule,
