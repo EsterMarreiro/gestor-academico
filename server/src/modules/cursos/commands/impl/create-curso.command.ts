@@ -1,5 +1,5 @@
-import { CreateCursosDto } from '../../dto/create-cursos.dto';
+import { CreateCursoDto } from '../../dto/create-curso.dto';
 
 export class CreateCursoCommand {
-  constructor(public readonly dto: CreateCursosDto) {}
+  constructor(public readonly dto: CreateCursoDto) {}
 }

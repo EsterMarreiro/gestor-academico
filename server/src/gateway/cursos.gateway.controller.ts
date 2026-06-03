@@ -11,8 +11,8 @@ import {
 import { ClientProxy } from '@nestjs/microservices';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CURSO_MSG } from '../contracts/microservice-patterns';
-import { CreateCursosDto } from '../modules/cursos/dto/create-cursos.dto';
-import { UpdateCursosDto } from '../modules/cursos/dto/update-cursos.dto';
+import { CreateCursoDto } from '../modules/cursos/dto/create-curso.dto';
+import { UpdateCursoDto } from '../modules/cursos/dto/update-curso.dto';
 import { CURSOS_SERVICE_TOKEN } from './gateway-tokens';
 import { sendRpc } from './microservice-rpc.helper';
 
@@ -30,8 +30,8 @@ export class CursosGatewayController {
   @ApiResponse({ status: 201, description: 'Curso criado com sucesso' })
   @ApiResponse({ status: 400, description: 'Dados inválidos' })
   @Post()
-  create(@Body() createCursosDto: CreateCursosDto) {
-    return sendRpc(this.cursosClient, CURSO_MSG.create, createCursosDto);
+  create(@Body() createCursoDto: CreateCursoDto) {
+    return sendRpc(this.cursosClient, CURSO_MSG.create, createCursoDto);
   }
 
   @ApiOperation({
@@ -78,10 +78,10 @@ export class CursosGatewayController {
     type: Number,
   })
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCursosDto: UpdateCursosDto) {
+  update(@Param('id') id: string, @Body() updateCursoDto: UpdateCursoDto) {
     return sendRpc(this.cursosClient, CURSO_MSG.update, {
       id: +id,
-      dto: updateCursosDto,
+      dto: updateCursoDto,
     });
   }
 
