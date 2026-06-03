@@ -1,23 +1,26 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ProfessorService } from './professor.service';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import {
+  CreateProfessorCommand,
+  GetProfessorByIdQuery,
+  ListProfessoresQuery,
+  RemoveProfessorCommand,
+  UpdateProfessorCommand,
+} from './professor.cqrs';
 import { ProfessorTcpController } from './professor.tcp.controller';
 
 describe('ProfessorTcpController', () => {
   let controller: ProfessorTcpController;
 
-  const professorServiceMock = {
-    create: jest.fn(),
-    findAll: jest.fn(),
-    findOne: jest.fn(),
-    update: jest.fn(),
-    remove: jest.fn(),
-  };
+  const commandBus = { execute: jest.fn() };
+  const queryBus = { execute: jest.fn() };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ProfessorTcpController],
       providers: [
-        { provide: ProfessorService, useValue: professorServiceMock },
+        { provide: CommandBus, useValue: commandBus },
+        { provide: QueryBus, useValue: queryBus },
       ],
     }).compile();
 
@@ -25,45 +28,55 @@ describe('ProfessorTcpController', () => {
     jest.clearAllMocks();
   });
 
-  it('delegates create to the service', async () => {
+  it('dispatches create via CommandBus', async () => {
     const dto = { usuarioId: 20, titulacao: 'Mestre' };
-    professorServiceMock.create.mockResolvedValue({ id: 1, ...dto });
+    commandBus.execute.mockResolvedValue({ id: 1, ...dto });
 
     await controller.create(dto);
 
-    expect(professorServiceMock.create).toHaveBeenCalledWith(dto);
+    expect(commandBus.execute).toHaveBeenCalledWith(
+      expect.objectContaining(new CreateProfessorCommand(dto)),
+    );
   });
 
-  it('delegates findAll to the service', async () => {
-    professorServiceMock.findAll.mockResolvedValue([]);
+  it('dispatches findAll via QueryBus', async () => {
+    queryBus.execute.mockResolvedValue([]);
 
     await controller.findAll();
 
-    expect(professorServiceMock.findAll).toHaveBeenCalled();
+    expect(queryBus.execute).toHaveBeenCalledWith(
+      expect.any(ListProfessoresQuery),
+    );
   });
 
-  it('delegates findOne to the service', async () => {
-    professorServiceMock.findOne.mockResolvedValue({ id: 1 });
+  it('dispatches findOne via QueryBus', async () => {
+    queryBus.execute.mockResolvedValue({ id: 1 });
 
     await controller.findOne(1);
 
-    expect(professorServiceMock.findOne).toHaveBeenCalledWith(1);
+    expect(queryBus.execute).toHaveBeenCalledWith(
+      expect.objectContaining(new GetProfessorByIdQuery(1)),
+    );
   });
 
-  it('delegates update to the service', async () => {
+  it('dispatches update via CommandBus', async () => {
     const dto = { titulacao: 'Doutor' };
-    professorServiceMock.update.mockResolvedValue({ id: 1, ...dto });
+    commandBus.execute.mockResolvedValue({ id: 1, ...dto });
 
     await controller.update({ id: 1, dto });
 
-    expect(professorServiceMock.update).toHaveBeenCalledWith(1, dto);
+    expect(commandBus.execute).toHaveBeenCalledWith(
+      expect.objectContaining(new UpdateProfessorCommand(1, dto)),
+    );
   });
 
-  it('delegates remove to the service', async () => {
-    professorServiceMock.remove.mockResolvedValue({ id: 1 });
+  it('dispatches remove via CommandBus', async () => {
+    commandBus.execute.mockResolvedValue({ id: 1 });
 
     await controller.remove(1);
 
-    expect(professorServiceMock.remove).toHaveBeenCalledWith(1);
+    expect(commandBus.execute).toHaveBeenCalledWith(
+      expect.objectContaining(new RemoveProfessorCommand(1)),
+    );
   });
 });

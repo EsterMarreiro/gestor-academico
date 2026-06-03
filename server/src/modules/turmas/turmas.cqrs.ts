@@ -1,78 +1,13 @@
-import {
-  CommandHandler,
-  ICommandHandler,
-  IQueryHandler,
-  QueryHandler,
-} from '@nestjs/cqrs';
-import { CreateTurmaDto } from './dto/create-turma.dto';
-import { UpdateTurmaDto } from './dto/update-turma.dto';
-import { TurmasService } from './turmas.service';
-
-export class CreateTurmaCommand {
-  constructor(public readonly dto: CreateTurmaDto) {}
-}
-
-export class UpdateTurmaCommand {
-  constructor(
-    public readonly id: number,
-    public readonly dto: UpdateTurmaDto,
-  ) {}
-}
-
-export class RemoveTurmaCommand {
-  constructor(public readonly id: number) {}
-}
-
-export class GetTurmaByIdQuery {
-  constructor(public readonly id: number) {}
-}
-
-export class ListTurmasQuery {}
-
-@CommandHandler(CreateTurmaCommand)
-export class CreateTurmaHandler implements ICommandHandler<CreateTurmaCommand> {
-  constructor(private readonly turmasService: TurmasService) {}
-
-  execute(command: CreateTurmaCommand) {
-    return this.turmasService.create(command.dto);
-  }
-}
-
-@CommandHandler(UpdateTurmaCommand)
-export class UpdateTurmaHandler implements ICommandHandler<UpdateTurmaCommand> {
-  constructor(private readonly turmasService: TurmasService) {}
-
-  execute(command: UpdateTurmaCommand) {
-    return this.turmasService.update(command.id, command.dto);
-  }
-}
-
-@CommandHandler(RemoveTurmaCommand)
-export class RemoveTurmaHandler implements ICommandHandler<RemoveTurmaCommand> {
-  constructor(private readonly turmasService: TurmasService) {}
-
-  execute(command: RemoveTurmaCommand) {
-    return this.turmasService.remove(command.id);
-  }
-}
-
-@QueryHandler(GetTurmaByIdQuery)
-export class GetTurmaByIdHandler implements IQueryHandler<GetTurmaByIdQuery> {
-  constructor(private readonly turmasService: TurmasService) {}
-
-  execute(query: GetTurmaByIdQuery) {
-    return this.turmasService.findOne(query.id);
-  }
-}
-
-@QueryHandler(ListTurmasQuery)
-export class ListTurmasHandler implements IQueryHandler<ListTurmasQuery> {
-  constructor(private readonly turmasService: TurmasService) {}
-
-  execute() {
-    return this.turmasService.findAll();
-  }
-}
+export { CreateTurmaCommand } from './commands/impl/create-turma.command';
+export { UpdateTurmaCommand } from './commands/impl/update-turma.command';
+export { RemoveTurmaCommand } from './commands/impl/remove-turma.command';
+export { GetTurmaByIdQuery } from './queries/impl/get-turma-by-id.query';
+export { ListTurmasQuery } from './queries/impl/list-turmas.query';
+import { CreateTurmaHandler } from './handlers/create-turma.handler';
+import { GetTurmaByIdHandler } from './handlers/get-turma-by-id.handler';
+import { ListTurmasHandler } from './handlers/list-turmas.handler';
+import { RemoveTurmaHandler } from './handlers/remove-turma.handler';
+import { UpdateTurmaHandler } from './handlers/update-turma.handler';
 
 export const turmasCommandHandlers = [
   CreateTurmaHandler,
