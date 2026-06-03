@@ -37,7 +37,9 @@ class InMemoryRabbitMqConnectionService {
   ): Promise<void> {
     this.handlers.push({
       routingKeys: options.routingKeys,
-      onMessage: options.onMessage as (payload: unknown) => Promise<void> | void,
+      onMessage: options.onMessage as (
+        payload: unknown,
+      ) => Promise<void> | void,
     });
   }
 }

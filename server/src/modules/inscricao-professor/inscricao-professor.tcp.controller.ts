@@ -27,9 +27,7 @@ export class InscricaoProfessorTcpController {
   }
 
   @MessagePattern(INSCRICAO_PROFESSOR_MSG.update)
-  update(
-    @Payload() payload: { id: number; dto: UpdateInscricaoProfessorDto },
-  ) {
+  update(@Payload() payload: { id: number; dto: UpdateInscricaoProfessorDto }) {
     return this.inscricaoProfessorService.update(payload.id, payload.dto);
   }
 

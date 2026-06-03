@@ -65,7 +65,9 @@ export class AlunoTurmaService {
       });
 
       if (!alunoTurma) {
-        throw new NotFoundException(`Vínculo aluno-turma #${id} não encontrado`);
+        throw new NotFoundException(
+          `Vínculo aluno-turma #${id} não encontrado`,
+        );
       }
 
       return alunoTurma;

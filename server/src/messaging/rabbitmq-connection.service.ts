@@ -76,13 +76,9 @@ export class RabbitMqConnectionService implements OnModuleDestroy {
   ): Promise<void> {
     const channelWrapper = this.connection.createChannel({
       setup: async (channel: Channel) => {
-        await channel.assertExchange(
-          options.exchange,
-          options.exchangeType,
-          {
-            durable: true,
-          },
-        );
+        await channel.assertExchange(options.exchange, options.exchangeType, {
+          durable: true,
+        });
         await channel.assertQueue(options.queue, { durable: true });
         for (const routingKey of options.routingKeys) {
           await channel.bindQueue(options.queue, options.exchange, routingKey);

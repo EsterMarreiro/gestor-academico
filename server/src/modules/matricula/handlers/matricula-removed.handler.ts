@@ -9,8 +9,8 @@ export class MatriculaRemovedHandler implements IEventHandler<MatriculaRemovedEv
 
   constructor(private readonly matriculaEvents: MatriculaEventsPublisher) {}
 
-  handle(event: MatriculaRemovedEvent) {
-    this.matriculaEvents.publishMatriculaRemovida(event.matricula.id);
+  async handle(event: MatriculaRemovedEvent) {
+    await this.matriculaEvents.publishMatriculaRemovida(event.matricula.id);
     this.logger.debug(
       `Matricula removida e evento publicado: ${JSON.stringify(event.matricula)}`,
     );

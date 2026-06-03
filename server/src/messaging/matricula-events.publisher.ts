@@ -5,10 +5,7 @@ import {
   MATRICULA_REMOVIDA_EVENT,
   MatriculaCriadaPayload,
 } from '../contracts/rmq.events';
-import {
-  RMQ_EVENTS_EXCHANGE,
-  RMQ_EVENTS_EXCHANGE_TYPE,
-} from './rmq.constants';
+import { RMQ_EVENTS_EXCHANGE, RMQ_EVENTS_EXCHANGE_TYPE } from './rmq.constants';
 import { RabbitMqConnectionService } from './rabbitmq-connection.service';
 
 @Injectable()
@@ -56,10 +53,10 @@ export class MatriculaEventsPublisher {
         RMQ_EVENTS_EXCHANGE,
         MATRICULA_ATUALIZADA_EVENT,
         {
-        matriculaId: matricula.id,
-        alunoId: matricula.alunoId,
-        cursoId: matricula.cursoId,
-        status: matricula.status,
+          matriculaId: matricula.id,
+          alunoId: matricula.alunoId,
+          cursoId: matricula.cursoId,
+          status: matricula.status,
         },
         RMQ_EVENTS_EXCHANGE_TYPE,
       )

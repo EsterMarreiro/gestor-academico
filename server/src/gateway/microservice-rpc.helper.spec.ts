@@ -14,7 +14,9 @@ describe('sendRpc', () => {
   it('returns the microservice payload when the call succeeds', async () => {
     clientMock.send.mockReturnValue(of({ ok: true }));
 
-    await expect(sendRpc(clientMock as never, 'pattern', { id: 1 })).resolves.toEqual({
+    await expect(
+      sendRpc(clientMock as never, 'pattern', { id: 1 }),
+    ).resolves.toEqual({
       ok: true,
     });
     expect(clientMock.send).toHaveBeenCalledWith('pattern', { id: 1 });
@@ -25,7 +27,9 @@ describe('sendRpc', () => {
       throwError(() => new Error('connect ECONNREFUSED 127.0.0.1:4001')),
     );
 
-    await expect(sendRpc(clientMock as never, 'pattern', {})).rejects.toMatchObject({
+    await expect(
+      sendRpc(clientMock as never, 'pattern', {}),
+    ).rejects.toMatchObject({
       status: 502,
     });
   });
@@ -40,7 +44,7 @@ describe('sendRpc', () => {
 
     try {
       await sendRpc(clientMock as never, 'pattern', {});
-      fail('Expected sendRpc to throw');
+      throw new Error('Expected sendRpc to throw');
     } catch (error) {
       expect(error).toBeInstanceOf(HttpException);
       expect((error as HttpException).getStatus()).toBe(404);
@@ -61,7 +65,7 @@ describe('sendRpc', () => {
 
     try {
       await sendRpc(clientMock as never, 'pattern', {});
-      fail('Expected sendRpc to throw');
+      throw new Error('Expected sendRpc to throw');
     } catch (error) {
       expect(error).toBeInstanceOf(HttpException);
       expect((error as HttpException).getStatus()).toBe(500);
@@ -74,7 +78,9 @@ describe('sendRpc', () => {
   it('maps invalid empty responses to 502 with fallback text', async () => {
     clientMock.send.mockReturnValue(throwError(() => null));
 
-    await expect(sendRpc(clientMock as never, 'pattern', {})).rejects.toMatchObject({
+    await expect(
+      sendRpc(clientMock as never, 'pattern', {}),
+    ).rejects.toMatchObject({
       status: 502,
     });
   });

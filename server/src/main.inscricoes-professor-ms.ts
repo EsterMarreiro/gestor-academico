@@ -5,10 +5,7 @@ import { InscricoesProfessorMsAppModule } from './microservice-apps/inscricoes-p
 import { HttpToRpcExceptionFilter } from './shared/filters/http-to-rpc-exception.filter';
 
 async function bootstrap() {
-  const port = parseInt(
-    process.env.INSCRICOES_PROFESSOR_MS_PORT ?? '4010',
-    10,
-  );
+  const port = parseInt(process.env.INSCRICOES_PROFESSOR_MS_PORT ?? '4010', 10);
   const host = process.env.INSCRICOES_PROFESSOR_MS_BIND ?? '0.0.0.0';
   const app = await NestFactory.createMicroservice(
     InscricoesProfessorMsAppModule,
