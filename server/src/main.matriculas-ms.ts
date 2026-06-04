@@ -1,6 +1,7 @@
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { Transport } from '@nestjs/microservices';
+import { Logger as PinoLogger } from 'nestjs-pino';
 import { MatriculasMsAppModule } from './microservice-apps/matriculas-ms-app.module';
 import { HttpToRpcExceptionFilter } from './shared/filters/http-to-rpc-exception.filter';
 
@@ -8,9 +9,11 @@ async function bootstrap() {
   const port = parseInt(process.env.MATRICULAS_MS_PORT ?? '4005', 10);
   const host = process.env.MATRICULAS_MS_BIND ?? '0.0.0.0';
   const app = await NestFactory.createMicroservice(MatriculasMsAppModule, {
+    bufferLogs: true,
     transport: Transport.TCP,
     options: { host, port },
   });
+  app.useLogger(app.get(PinoLogger));
   app.enableShutdownHooks();
   app.useGlobalFilters(new HttpToRpcExceptionFilter());
   app.useGlobalPipes(

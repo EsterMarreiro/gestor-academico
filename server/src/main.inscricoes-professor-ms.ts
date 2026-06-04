@@ -1,6 +1,7 @@
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { Transport } from '@nestjs/microservices';
+import { Logger as PinoLogger } from 'nestjs-pino';
 import { InscricoesProfessorMsAppModule } from './microservice-apps/inscricoes-professor-ms-app.module';
 import { HttpToRpcExceptionFilter } from './shared/filters/http-to-rpc-exception.filter';
 
@@ -10,10 +11,12 @@ async function bootstrap() {
   const app = await NestFactory.createMicroservice(
     InscricoesProfessorMsAppModule,
     {
+      bufferLogs: true,
       transport: Transport.TCP,
       options: { host, port },
     },
   );
+  app.useLogger(app.get(PinoLogger));
   app.enableShutdownHooks();
   app.useGlobalFilters(new HttpToRpcExceptionFilter());
   app.useGlobalPipes(

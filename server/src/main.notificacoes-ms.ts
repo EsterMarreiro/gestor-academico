@@ -1,9 +1,16 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { Logger as PinoLogger } from 'nestjs-pino';
 import { NotificacoesAppModule } from './microservice-apps/notificacoes-app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.createApplicationContext(NotificacoesAppModule);
+  const app = await NestFactory.createApplicationContext(
+    NotificacoesAppModule,
+    {
+      bufferLogs: true,
+    },
+  );
+  app.useLogger(app.get(PinoLogger));
   app.enableShutdownHooks();
 
   Logger.log(
