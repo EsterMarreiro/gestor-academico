@@ -2,6 +2,9 @@
   "name": "gestor-academico",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=22 <23"
+  },
   "scripts": {
     "build": "npm --prefix server run build",
     "lint": "npm --prefix server run lint",
@@ -21,6 +24,7 @@
   "devDependencies": {
     "@commitlint/cli": "^20.1.0",
     "@commitlint/config-conventional": "^20.0.0",
+    "conventional-commits-filter": "^5.0.0",
     "husky": "^9.1.7",
     "standard-version": "^9.5.0"
   }

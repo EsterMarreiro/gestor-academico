@@ -282,6 +282,7 @@ services:
       LOG_LEVEL: debug
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      RABBITMQ_URL: amqp://gestor:gestor@rabbitmq:5672
       METRICS_DEFAULT_PREFIX: gestor_academico_
       HEALTHCHECK_EXTERNAL_TIMEOUT_MS: 2000
       EXTERNAL_SERVICES: ${EXTERNAL_SERVICES:-}
