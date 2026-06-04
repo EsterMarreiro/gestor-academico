@@ -6,6 +6,7 @@ import amqp, {
 } from 'amqp-connection-manager';
 import { Channel, ConsumeMessage, Options } from 'amqplib';
 import { randomUUID } from 'node:crypto';
+import { MetricsService } from '../observability/metrics/metrics.service';
 
 export type RabbitMqSubscriptionOptions<TPayload> = {
   exchange: string;
@@ -27,7 +28,10 @@ export class RabbitMqConnectionService implements OnModuleDestroy {
   private readonly publisherChannel: ChannelWrapper;
   private readonly consumerChannels: ChannelWrapper[] = [];
 
-  constructor(private readonly config: ConfigService) {
+  constructor(
+    private readonly config: ConfigService,
+    private readonly metrics: MetricsService,
+  ) {
     const url = this.config.get<string>(
       'RABBITMQ_URL',
       'amqp://gestor:gestor@127.0.0.1:5672',
@@ -39,9 +43,11 @@ export class RabbitMqConnectionService implements OnModuleDestroy {
     });
 
     this.connection.on('connect', () => {
+      this.metrics.setRabbitMqConnectionStatus(true);
       this.logger.log(`Ligado ao RabbitMQ em ${url}`);
     });
     this.connection.on('disconnect', ({ err }) => {
+      this.metrics.setRabbitMqConnectionStatus(false);
       this.logger.warn(
         `Ligação RabbitMQ interrompida: ${err?.message ?? 'sem detalhe'}`,
       );
@@ -71,7 +77,13 @@ export class RabbitMqConnectionService implements OnModuleDestroy {
       });
     });
 
-    await this.publisherChannel.publish(exchange, routingKey, body, options);
+    try {
+      await this.publisherChannel.publish(exchange, routingKey, body, options);
+      this.metrics.recordRabbitMqPublish(exchange, routingKey, 'success');
+    } catch (error) {
+      this.metrics.recordRabbitMqPublish(exchange, routingKey, 'error');
+      throw error;
+    }
   }
 
   async subscribe<TPayload>(
@@ -120,13 +132,26 @@ export class RabbitMqConnectionService implements OnModuleDestroy {
     message: ConsumeMessage,
     options: RabbitMqSubscriptionOptions<TPayload>,
   ) {
+    const startedAt = process.hrtime.bigint();
     try {
       const payload = JSON.parse(message.content.toString('utf-8')) as TPayload;
       await options.onMessage(payload, {
         routingKey: message.fields.routingKey,
       });
       channel.ack(message);
+      this.metrics.recordRabbitMqConsume(
+        options.queue,
+        message.fields.routingKey,
+        Number(process.hrtime.bigint() - startedAt) / 1_000_000,
+        'success',
+      );
     } catch (error) {
+      this.metrics.recordRabbitMqConsume(
+        options.queue,
+        message.fields.routingKey,
+        Number(process.hrtime.bigint() - startedAt) / 1_000_000,
+        'error',
+      );
       this.logger.warn(
         `Falha ao processar mensagem ${message.fields.routingKey}; reenfileirando: ${
           error instanceof Error ? error.message : String(error)

@@ -13,14 +13,15 @@ import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CURSO_MSG } from '../contracts/microservice-patterns';
 import { CreateCursoDto } from '../modules/cursos/dto/create-curso.dto';
 import { UpdateCursoDto } from '../modules/cursos/dto/update-curso.dto';
+import { RpcResilienceService } from '../resilience/rpc-resilience.service';
 import { CURSOS_SERVICE_TOKEN } from './gateway-tokens';
-import { sendRpc } from './microservice-rpc.helper';
 
 @ApiTags('Cursos')
 @Controller('cursos')
 export class CursosGatewayController {
   constructor(
     @Inject(CURSOS_SERVICE_TOKEN) private readonly cursosClient: ClientProxy,
+    private readonly rpc: RpcResilienceService,
   ) {}
 
   @ApiOperation({
@@ -31,7 +32,12 @@ export class CursosGatewayController {
   @ApiResponse({ status: 400, description: 'Dados inválidos' })
   @Post()
   create(@Body() createCursoDto: CreateCursoDto) {
-    return sendRpc(this.cursosClient, CURSO_MSG.create, createCursoDto);
+    return this.rpc.send(
+      this.cursosClient,
+      CURSO_MSG.create,
+      createCursoDto,
+      'cursos-ms',
+    );
   }
 
   @ApiOperation({
@@ -44,7 +50,7 @@ export class CursosGatewayController {
   })
   @Get()
   findAll() {
-    return sendRpc(this.cursosClient, CURSO_MSG.findAll, {});
+    return this.rpc.send(this.cursosClient, CURSO_MSG.findAll, {}, 'cursos-ms');
   }
 
   @ApiOperation({
@@ -60,7 +66,12 @@ export class CursosGatewayController {
   })
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return sendRpc(this.cursosClient, CURSO_MSG.findOne, +id);
+    return this.rpc.send(
+      this.cursosClient,
+      CURSO_MSG.findOne,
+      +id,
+      'cursos-ms',
+    );
   }
 
   @ApiOperation({
@@ -79,10 +90,15 @@ export class CursosGatewayController {
   })
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateCursoDto: UpdateCursoDto) {
-    return sendRpc(this.cursosClient, CURSO_MSG.update, {
-      id: +id,
-      dto: updateCursoDto,
-    });
+    return this.rpc.send(
+      this.cursosClient,
+      CURSO_MSG.update,
+      {
+        id: +id,
+        dto: updateCursoDto,
+      },
+      'cursos-ms',
+    );
   }
 
   @ApiOperation({
@@ -98,6 +114,6 @@ export class CursosGatewayController {
   })
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return sendRpc(this.cursosClient, CURSO_MSG.remove, +id);
+    return this.rpc.send(this.cursosClient, CURSO_MSG.remove, +id, 'cursos-ms');
   }
 }

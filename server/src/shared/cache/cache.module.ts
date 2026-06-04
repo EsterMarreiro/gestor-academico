@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { Logger } from '@nestjs/common';
 import { redisStore } from 'cache-manager-redis-store';
 import { GatewayCacheService } from './gateway-cache.service';
 
@@ -11,6 +12,7 @@ import { GatewayCacheService } from './gateway-cache.service';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (config: ConfigService) => {
+        const logger = new Logger(CacheConfigurationModule.name);
         try {
           const redisUrl =
             config.get('REDIS_URL') ||
@@ -29,9 +31,10 @@ import { GatewayCacheService } from './gateway-cache.service';
             ttl: 300,
           };
         } catch (error) {
-          console.warn(
-            'Redis cache unavailable, falling back to in-memory cache.',
-            error,
+          logger.warn(
+            `Redis cache unavailable, falling back to in-memory cache. ${
+              error instanceof Error ? error.message : String(error)
+            }`,
           );
 
           return {

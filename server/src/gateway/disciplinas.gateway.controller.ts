@@ -13,8 +13,8 @@ import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { DISCIPLINA_MSG } from '../contracts/microservice-patterns';
 import { CreateDisciplinaDto } from '../modules/disciplina/dto/create-disciplina.dto';
 import { UpdateDisciplinaDto } from '../modules/disciplina/dto/update-disciplina.dto';
+import { RpcResilienceService } from '../resilience/rpc-resilience.service';
 import { DISCIPLINAS_SERVICE_TOKEN } from './gateway-tokens';
-import { sendRpc } from './microservice-rpc.helper';
 
 @ApiTags('Disciplinas')
 @Controller('disciplina')
@@ -22,6 +22,7 @@ export class DisciplinasGatewayController {
   constructor(
     @Inject(DISCIPLINAS_SERVICE_TOKEN)
     private readonly disciplinasClient: ClientProxy,
+    private readonly rpc: RpcResilienceService,
   ) {}
 
   @ApiOperation({
@@ -32,10 +33,11 @@ export class DisciplinasGatewayController {
   @ApiResponse({ status: 400, description: 'Dados inválidos' })
   @Post()
   create(@Body() createDisciplinaDto: CreateDisciplinaDto) {
-    return sendRpc(
+    return this.rpc.send(
       this.disciplinasClient,
       DISCIPLINA_MSG.create,
       createDisciplinaDto,
+      'disciplinas-ms',
     );
   }
 
@@ -49,7 +51,12 @@ export class DisciplinasGatewayController {
   })
   @Get()
   findAll() {
-    return sendRpc(this.disciplinasClient, DISCIPLINA_MSG.findAll, {});
+    return this.rpc.send(
+      this.disciplinasClient,
+      DISCIPLINA_MSG.findAll,
+      {},
+      'disciplinas-ms',
+    );
   }
 
   @ApiOperation({
@@ -68,7 +75,12 @@ export class DisciplinasGatewayController {
   })
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return sendRpc(this.disciplinasClient, DISCIPLINA_MSG.findOne, +id);
+    return this.rpc.send(
+      this.disciplinasClient,
+      DISCIPLINA_MSG.findOne,
+      +id,
+      'disciplinas-ms',
+    );
   }
 
   @ApiOperation({
@@ -90,10 +102,15 @@ export class DisciplinasGatewayController {
     @Param('id') id: string,
     @Body() updateDisciplinaDto: UpdateDisciplinaDto,
   ) {
-    return sendRpc(this.disciplinasClient, DISCIPLINA_MSG.update, {
-      id: +id,
-      dto: updateDisciplinaDto,
-    });
+    return this.rpc.send(
+      this.disciplinasClient,
+      DISCIPLINA_MSG.update,
+      {
+        id: +id,
+        dto: updateDisciplinaDto,
+      },
+      'disciplinas-ms',
+    );
   }
 
   @ApiOperation({
@@ -109,6 +126,11 @@ export class DisciplinasGatewayController {
   })
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return sendRpc(this.disciplinasClient, DISCIPLINA_MSG.remove, +id);
+    return this.rpc.send(
+      this.disciplinasClient,
+      DISCIPLINA_MSG.remove,
+      +id,
+      'disciplinas-ms',
+    );
   }
 }

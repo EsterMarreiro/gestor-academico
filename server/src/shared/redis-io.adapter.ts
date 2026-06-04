@@ -1,10 +1,12 @@
 import { INestApplicationContext } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { ServerOptions, Server } from 'socket.io';
 import { createAdapter } from '@socket.io/redis-adapter';
 import { createClient } from 'redis';
 
 export class RedisIoAdapter extends IoAdapter {
+  private readonly logger = new Logger(RedisIoAdapter.name);
   private pubClient: ReturnType<typeof createClient> | null = null;
   private subClient: ReturnType<typeof createClient> | null = null;
 
@@ -17,7 +19,11 @@ export class RedisIoAdapter extends IoAdapter {
     void this.connectToRedis()
       .then((adapter) => server.adapter(adapter))
       .catch((error) => {
-        console.error('Redis adapter initialization failed', error);
+        this.logger.error(
+          error instanceof Error
+            ? (error.stack ?? error.message)
+            : String(error),
+        );
       });
     return server;
   }

@@ -13,14 +13,15 @@ import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { TURMA_MSG } from '../contracts/microservice-patterns';
 import { CreateTurmaDto } from '../modules/turmas/dto/create-turma.dto';
 import { UpdateTurmaDto } from '../modules/turmas/dto/update-turma.dto';
+import { RpcResilienceService } from '../resilience/rpc-resilience.service';
 import { TURMAS_SERVICE_TOKEN } from './gateway-tokens';
-import { sendRpc } from './microservice-rpc.helper';
 
 @ApiTags('Turmas')
 @Controller('turmas')
 export class TurmasGatewayController {
   constructor(
     @Inject(TURMAS_SERVICE_TOKEN) private readonly turmasClient: ClientProxy,
+    private readonly rpc: RpcResilienceService,
   ) {}
 
   @ApiOperation({
@@ -31,7 +32,12 @@ export class TurmasGatewayController {
   @ApiResponse({ status: 400, description: 'Dados inválidos' })
   @Post()
   create(@Body() createTurmaDto: CreateTurmaDto) {
-    return sendRpc(this.turmasClient, TURMA_MSG.create, createTurmaDto);
+    return this.rpc.send(
+      this.turmasClient,
+      TURMA_MSG.create,
+      createTurmaDto,
+      'turmas-ms',
+    );
   }
 
   @ApiOperation({
@@ -44,7 +50,7 @@ export class TurmasGatewayController {
   })
   @Get()
   findAll() {
-    return sendRpc(this.turmasClient, TURMA_MSG.findAll, {});
+    return this.rpc.send(this.turmasClient, TURMA_MSG.findAll, {}, 'turmas-ms');
   }
 
   @ApiOperation({
@@ -60,7 +66,12 @@ export class TurmasGatewayController {
   })
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return sendRpc(this.turmasClient, TURMA_MSG.findOne, +id);
+    return this.rpc.send(
+      this.turmasClient,
+      TURMA_MSG.findOne,
+      +id,
+      'turmas-ms',
+    );
   }
 
   @ApiOperation({
@@ -79,10 +90,15 @@ export class TurmasGatewayController {
   })
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateTurmaDto: UpdateTurmaDto) {
-    return sendRpc(this.turmasClient, TURMA_MSG.update, {
-      id: +id,
-      dto: updateTurmaDto,
-    });
+    return this.rpc.send(
+      this.turmasClient,
+      TURMA_MSG.update,
+      {
+        id: +id,
+        dto: updateTurmaDto,
+      },
+      'turmas-ms',
+    );
   }
 
   @ApiOperation({
@@ -98,6 +114,6 @@ export class TurmasGatewayController {
   })
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return sendRpc(this.turmasClient, TURMA_MSG.remove, +id);
+    return this.rpc.send(this.turmasClient, TURMA_MSG.remove, +id, 'turmas-ms');
   }
 }

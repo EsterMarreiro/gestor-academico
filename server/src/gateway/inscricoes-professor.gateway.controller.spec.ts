@@ -1,9 +1,9 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { of } from 'rxjs';
 import { StatusInscricaoProfessor } from '@prisma/client';
+import { Test, TestingModule } from '@nestjs/testing';
 import { INSCRICAO_PROFESSOR_MSG } from '../contracts/microservice-patterns';
 import { CreateInscricaoProfessorDto } from '../modules/inscricao-professor/dto/create-inscricao-professor.dto';
 import { UpdateInscricaoProfessorDto } from '../modules/inscricao-professor/dto/update-inscricao-professor.dto';
+import { RpcResilienceService } from '../resilience/rpc-resilience.service';
 import { INSCRICOES_PROFESSOR_SERVICE_TOKEN } from './gateway-tokens';
 import { InscricoesProfessorGatewayController } from './inscricoes-professor.gateway.controller';
 
@@ -18,6 +18,10 @@ const clientMock = {
   send: jest.fn(),
 };
 
+const rpcMock = {
+  send: jest.fn(),
+};
+
 describe('InscricoesProfessorGatewayController', () => {
   let controller: InscricoesProfessorGatewayController;
 
@@ -29,6 +33,7 @@ describe('InscricoesProfessorGatewayController', () => {
           provide: INSCRICOES_PROFESSOR_SERVICE_TOKEN,
           useValue: clientMock,
         },
+        { provide: RpcResilienceService, useValue: rpcMock },
       ],
     }).compile();
 
@@ -36,62 +41,72 @@ describe('InscricoesProfessorGatewayController', () => {
     jest.clearAllMocks();
   });
 
-  it('delegates create to TCP client', async () => {
+  it('delegates create to resilience service', async () => {
     const dto: CreateInscricaoProfessorDto = { usuarioId: 7, disciplinaId: 9 };
-    clientMock.send.mockReturnValue(of(inscricaoMock));
+    rpcMock.send.mockResolvedValue(inscricaoMock);
 
     await expect(controller.create(dto)).resolves.toEqual(inscricaoMock);
-    expect(clientMock.send).toHaveBeenCalledWith(
+    expect(rpcMock.send).toHaveBeenCalledWith(
+      clientMock,
       INSCRICAO_PROFESSOR_MSG.create,
       dto,
+      'inscricoes-professor-ms',
     );
   });
 
-  it('delegates findAll to TCP client', async () => {
-    clientMock.send.mockReturnValue(of([inscricaoMock]));
+  it('delegates findAll to resilience service', async () => {
+    rpcMock.send.mockResolvedValue([inscricaoMock]);
 
     await expect(controller.findAll()).resolves.toEqual([inscricaoMock]);
-    expect(clientMock.send).toHaveBeenCalledWith(
+    expect(rpcMock.send).toHaveBeenCalledWith(
+      clientMock,
       INSCRICAO_PROFESSOR_MSG.findAll,
       {},
+      'inscricoes-professor-ms',
     );
   });
 
-  it('delegates findOne to TCP client', async () => {
-    clientMock.send.mockReturnValue(of(inscricaoMock));
+  it('delegates findOne to resilience service', async () => {
+    rpcMock.send.mockResolvedValue(inscricaoMock);
 
     await expect(controller.findOne('1')).resolves.toEqual(inscricaoMock);
-    expect(clientMock.send).toHaveBeenCalledWith(
+    expect(rpcMock.send).toHaveBeenCalledWith(
+      clientMock,
       INSCRICAO_PROFESSOR_MSG.findOne,
       1,
+      'inscricoes-professor-ms',
     );
   });
 
-  it('delegates update to TCP client', async () => {
+  it('delegates update to resilience service', async () => {
     const dto: UpdateInscricaoProfessorDto = {
       status: StatusInscricaoProfessor.aprovada,
     };
-    clientMock.send.mockReturnValue(of({ ...inscricaoMock, ...dto }));
+    rpcMock.send.mockResolvedValue({ ...inscricaoMock, ...dto });
 
     await controller.update('1', dto);
 
-    expect(clientMock.send).toHaveBeenCalledWith(
+    expect(rpcMock.send).toHaveBeenCalledWith(
+      clientMock,
       INSCRICAO_PROFESSOR_MSG.update,
       {
         id: 1,
         dto,
       },
+      'inscricoes-professor-ms',
     );
   });
 
-  it('delegates remove to TCP client', async () => {
-    clientMock.send.mockReturnValue(of(inscricaoMock));
+  it('delegates remove to resilience service', async () => {
+    rpcMock.send.mockResolvedValue(inscricaoMock);
 
     await controller.remove('1');
 
-    expect(clientMock.send).toHaveBeenCalledWith(
+    expect(rpcMock.send).toHaveBeenCalledWith(
+      clientMock,
       INSCRICAO_PROFESSOR_MSG.remove,
       1,
+      'inscricoes-professor-ms',
     );
   });
 });

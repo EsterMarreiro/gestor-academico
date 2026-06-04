@@ -13,8 +13,8 @@ import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PROFESSOR_MSG } from '../contracts/microservice-patterns';
 import { CreateProfessorDto } from '../modules/professor/dto/create-professor.dto';
 import { UpdateProfessorDto } from '../modules/professor/dto/update-professor.dto';
+import { RpcResilienceService } from '../resilience/rpc-resilience.service';
 import { PROFESSORES_SERVICE_TOKEN } from './gateway-tokens';
-import { sendRpc } from './microservice-rpc.helper';
 
 @ApiTags('Professores')
 @Controller('professores')
@@ -22,6 +22,7 @@ export class ProfessoresGatewayController {
   constructor(
     @Inject(PROFESSORES_SERVICE_TOKEN)
     private readonly professoresClient: ClientProxy,
+    private readonly rpc: RpcResilienceService,
   ) {}
 
   @ApiOperation({
@@ -41,13 +42,23 @@ export class ProfessoresGatewayController {
   })
   @Post()
   create(@Body() dto: CreateProfessorDto) {
-    return sendRpc(this.professoresClient, PROFESSOR_MSG.create, dto);
+    return this.rpc.send(
+      this.professoresClient,
+      PROFESSOR_MSG.create,
+      dto,
+      'professores-ms',
+    );
   }
 
   @ApiOperation({ summary: 'Lista professores' })
   @Get()
   findAll() {
-    return sendRpc(this.professoresClient, PROFESSOR_MSG.findAll, {});
+    return this.rpc.send(
+      this.professoresClient,
+      PROFESSOR_MSG.findAll,
+      {},
+      'professores-ms',
+    );
   }
 
   @ApiOperation({ summary: 'Obtém professor por id' })
@@ -55,7 +66,12 @@ export class ProfessoresGatewayController {
   @ApiResponse({ status: 404, description: 'Professor não encontrado' })
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return sendRpc(this.professoresClient, PROFESSOR_MSG.findOne, +id);
+    return this.rpc.send(
+      this.professoresClient,
+      PROFESSOR_MSG.findOne,
+      +id,
+      'professores-ms',
+    );
   }
 
   @ApiOperation({ summary: 'Atualiza professor' })
@@ -70,10 +86,15 @@ export class ProfessoresGatewayController {
   })
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdateProfessorDto) {
-    return sendRpc(this.professoresClient, PROFESSOR_MSG.update, {
-      id: +id,
-      dto,
-    });
+    return this.rpc.send(
+      this.professoresClient,
+      PROFESSOR_MSG.update,
+      {
+        id: +id,
+        dto,
+      },
+      'professores-ms',
+    );
   }
 
   @ApiOperation({ summary: 'Remove professor' })
@@ -81,6 +102,11 @@ export class ProfessoresGatewayController {
   @ApiResponse({ status: 404, description: 'Professor não encontrado' })
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return sendRpc(this.professoresClient, PROFESSOR_MSG.remove, +id);
+    return this.rpc.send(
+      this.professoresClient,
+      PROFESSOR_MSG.remove,
+      +id,
+      'professores-ms',
+    );
   }
 }
