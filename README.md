@@ -3,7 +3,7 @@
 [![CI](https://github.com/estermarreiro/gestor-academico/actions/workflows/ci.yml/badge.svg)](https://github.com/estermarreiro/gestor-academico/actions/workflows/ci.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=EsterMarreiro_gestor-academico&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=EsterMarreiro_gestor-academico)
 
-Backend NestJS do sistema de gestão acadêmica. O frontend Angular não existe neste repositório; a API HTTP e os contratos de integração estão preparados para consumo futuro por qualquer cliente web.
+Backend NestJS para gestão acadêmica com API Gateway HTTP, microserviços TCP por domínio, mensageria RabbitMQ, cache distribuído com Redis e stack de observabilidade com Prometheus e Grafana. Não existe frontend neste repositório.
 
 ## Estrutura
 
@@ -15,6 +15,9 @@ Backend NestJS do sistema de gestão acadêmica. O frontend Angular não existe 
 ├── commitlint.config.js
 ├── package.json
 ├── server/
+│   ├── Dockerfile
+│   ├── docker-compose.yml
+│   ├── docker-compose.prod.yml
 │   ├── package.json
 │   ├── src/
 │   └── test/
@@ -23,12 +26,45 @@ Backend NestJS do sistema de gestão acadêmica. O frontend Angular não existe 
 
 ## Requisitos
 
-- Node.js LTS
+- Node.js 22
 - npm
-- PostgreSQL para uso completo da aplicação
-- Redis opcional para cache distribuido
+- Docker
+- Docker Compose
+
+Para execução completa da stack local, o `docker compose` sobe:
+
+- PostgreSQL 16
+- Redis 7
+- RabbitMQ 3
+- pgAdmin 4
+- Prometheus
+- Grafana
+
+## Módulos Ativos
+
+O backend expõe e orquestra os domínios abaixo:
+
+- Usuários
+- Turmas
+- Cursos
+- Disciplinas
+- Matrículas
+- Alunos
+- Professores
+- Alunos por turma
+- Inscrições de professor
+- Notificações
+- Versionamento da aplicação
 
 ## Instalação
+
+Se usar `nvm`:
+
+```bash
+nvm use
+```
+
+Instale as dependências do repositório e do backend:
 
 ```bash
 npm ci
@@ -37,23 +73,49 @@ npm ci --prefix server
 
 ## Execução
 
+Para subir a stack completa de desenvolvimento:
+
+```bash
+cd server
+docker compose up -d --build
+```
+
+Para rodar apenas o backend fora do Docker, você precisa ter PostgreSQL, Redis e RabbitMQ acessíveis pelas variáveis de ambiente:
+
 ```bash
 npm run build
 npm --prefix server run start:dev
 ```
 
-Variáveis relevantes:
+## Variáveis Relevantes
 
-- `DATABASE_URL`: conexão do Prisma.
+- `DATABASE_URL`: conexão do Prisma com PostgreSQL.
 - `NODE_ENV`: `development`, `test` ou `production`.
-- `BUILD_DATE`: opcional. Se não for definida, o backend gera a data automaticamente no bootstrap do módulo de versão.
+- `BUILD_DATE`: opcional. Se ausente, a aplicação gera a data no bootstrap do módulo de versão.
 - `PORT`: porta HTTP do gateway.
+- `REDIS_HOST`: host do Redis.
+- `REDIS_PORT`: porta do Redis.
+- `REDIS_URL`: alternativa ao uso de `REDIS_HOST` e `REDIS_PORT`.
+- `RABBITMQ_URL`: conexão AMQP usada por health checks, mensageria e notificações.
+- `SERVICE_NAME`: nome exposto para logs e observabilidade.
+- `LOG_LEVEL`: nível de log (`trace`, `debug`, `info`, `warn`, `error`, `fatal`).
+- `EXTERNAL_SERVICES`: lista opcional de serviços externos monitorados no health check.
 
-## Endpoint de versão
+## Endpoints Úteis
 
-Endpoint HTTP disponível em `GET /api/v1/version`.
+Com a stack padrão em Docker:
 
-Resposta esperada:
+- Gateway HTTP: `http://localhost:3001`
+- Swagger: `http://localhost:3001/docs`
+- Health check: `http://localhost:3001/health`
+- Métricas Prometheus: `http://localhost:3001/metrics`
+- Endpoint de versão: `http://localhost:3001/api/v1/version`
+- RabbitMQ Management: `http://localhost:15672`
+- pgAdmin: `http://localhost:8080`
+- Prometheus: `http://localhost:9090`
+- Grafana: `http://localhost:3002`
+
+Resposta esperada em `GET /api/v1/version`:
 
 ```json
 {
@@ -62,12 +124,6 @@ Resposta esperada:
   "buildDate": "2026-01-01T00:00:00.000Z"
 }
 ```
-
-Origem dos dados:
-
-- `version`: lida de `server/package.json`
-- `environment`: lida de `NODE_ENV`
-- `buildDate`: lida de `BUILD_DATE` ou gerada automaticamente
 
 ## Testes
 
@@ -86,16 +142,16 @@ npm run lint
 npm run lint:fix
 ```
 
-O ESLint da aplicação roda em `server/` e a pipeline falha caso lint, build, testes unitários, e2e ou coverage falhem.
+O ESLint roda em `server/`. A pipeline falha se lint, build, testes unitários, testes de integração ou cobertura falharem.
 
 ## Conventional Commits e Husky
 
-Commits devem seguir o padrão Conventional Commits, por exemplo:
+Commits devem seguir Conventional Commits, por exemplo:
 
 ```text
 feat: adiciona endpoint de versão
-fix: corrige serialização do build date
-chore: atualiza pipeline de ci
+fix: corrige healthcheck do gateway
+chore: atualiza runtime para node 22
 ```
 
 Arquivos de automação:
@@ -109,11 +165,9 @@ Após instalar dependências, execute:
 npm run prepare
 ```
 
-O hook `commit-msg` bloqueia commits inválidos com `commitlint`.
-
 ## Versionamento Semântico
 
-Foi adotado `standard-version` por ser uma solução estável e pragmática para um backend NestJS que não precisa publicar pacote no npm, mas precisa:
+O projeto usa `standard-version` para:
 
 - versionar `package.json`
 - gerar `CHANGELOG.md`
@@ -126,45 +180,32 @@ npm run release:first
 npm run release
 ```
 
-Fluxo recomendado:
-
-1. Faça merge de commits válidos em `develop`.
-2. Crie `release/*` a partir de `develop`.
-3. Execute `npm run release` na branch de release.
-4. Valide pipeline e merge em `main`.
-5. Publique a tag criada.
-
 ## Git Flow
 
 Branches oficiais:
 
 - `main`: produção
-- `develop`: integração contínua
+- `develop`: integração
 - `feature/*`: novas funcionalidades
-- `hotfix/*`: correções urgentes saindo de `main`
+- `hotfix/*`: correções urgentes
 - `release/*`: preparação de versão
 
-Fluxo resumido:
-
-1. `feature/*` nasce de `develop` e retorna para `develop`.
-2. `release/*` nasce de `develop`, recebe ajustes finais e volta para `main` e `develop`.
-3. `hotfix/*` nasce de `main`, corrige produção e volta para `main` e `develop`.
-
-## CI/CD com GitHub Actions
+## CI/CD
 
 Workflow: `.github/workflows/ci.yml`
 
 Etapas executadas:
 
-1. Install
-2. Lint
-3. Build
-4. Unit Tests
-5. Integration Tests
-6. Coverage
-7. SonarCloud Analysis
+1. Instala dependências do repositório
+2. Instala dependências do backend
+3. Executa lint
+4. Executa build
+5. Executa testes unitários
+6. Executa testes de integração
+7. Gera cobertura
+8. Executa análise no SonarCloud quando `SONAR_TOKEN` está configurado
 
-O workflow usa Node LTS com cache de dependências e aguarda o Quality Gate do SonarCloud.
+A pipeline está fixada em Node 22.
 
 ## SonarCloud
 
@@ -173,19 +214,3 @@ Arquivo base: `sonar-project.properties`
 Configurar no GitHub:
 
 - Secret `SONAR_TOKEN`
-
-Substituir placeholders:
-
-- `your-sonarcloud-org`
-- `your-sonarcloud-org_gestor-academico`
-- `<SONAR_PROJECT_KEY>` no badge do README
-- `<OWNER>` e `<REPO>` no badge do GitHub Actions
-
-Meta esperada:
-
-- Coverage on New Code `>= 70%`
-- Quality Gate `PASSED`
-
-## Frontend
-
-Não existe frontend Angular neste repositório. O backend ficou preparado para integração via endpoint versionado, documentação da API e pipeline de qualidade.
