@@ -1,216 +1,278 @@
-# Gestor Acadêmico Backend
+# Gestor Acadêmico
 
 [![CI](https://github.com/estermarreiro/gestor-academico/actions/workflows/ci.yml/badge.svg)](https://github.com/estermarreiro/gestor-academico/actions/workflows/ci.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=EsterMarreiro_gestor-academico&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=EsterMarreiro_gestor-academico)
 
-Backend NestJS para gestão acadêmica com API Gateway HTTP, microserviços TCP por domínio, mensageria RabbitMQ, cache distribuído com Redis e stack de observabilidade com Prometheus e Grafana. Não existe frontend neste repositório.
+Sistema de gestão acadêmica voltado para cadastro institucional, organização da oferta de ensino, vínculo entre alunos, professores, cursos, disciplinas e turmas, além de operações de matrícula e inscrição docente. Este `README` descreve o domínio e seus bounded contexts. A visão técnica do backend está em [server/README.md](server/README.md).
 
-## Estrutura
+## Tema
 
-```text
-.
-├── .github/workflows/ci.yml
-├── .husky/commit-msg
-├── CHANGELOG.md
-├── commitlint.config.js
-├── package.json
-├── server/
-│   ├── Dockerfile
-│   ├── docker-compose.yml
-│   ├── docker-compose.prod.yml
-│   ├── package.json
-│   ├── src/
-│   └── test/
-└── sonar-project.properties
-```
+O domínio parte de uma instituição que precisa organizar sua operação acadêmica sem entrar, por enquanto, em controle de aulas, avaliações, frequência ou calendário semestral. O foco atual está em:
 
-## Requisitos
+- cadastro de usuários e papéis institucionais
+- manutenção de cursos, disciplinas e turmas
+- matrícula de alunos em cursos
+- vínculo de alunos com turmas
+- inscrição de professores para disciplinas
+- estrutura técnica pronta para crescer com observabilidade, cache, resiliência e comunicação assíncrona
 
-- Node.js 22
-- npm
-- Docker
-- Docker Compose
+## Perfis de Usuário
 
-Para execução completa da stack local, o `docker compose` sobe:
+### Administrador
 
-- PostgreSQL 16
-- Redis 7
-- RabbitMQ 3
-- pgAdmin 4
-- Prometheus
-- Grafana
+Responsável pela gestão institucional do sistema. No modelo atual, o projeto já possui o indicador `isAdmin` no usuário, o que representa a distinção entre operação administrativa e operação comum.
 
-## Módulos Ativos
+É o perfil que faz mais sentido para:
 
-O backend expõe e orquestra os domínios abaixo:
+- cadastrar e manter cursos, disciplinas e turmas
+- aprovar ou recusar fluxos operacionais
+- organizar a oferta disponível para alunos e professores
 
-- Usuários
-- Turmas
-- Cursos
-- Disciplinas
-- Matrículas
-- Alunos
-- Professores
-- Alunos por turma
-- Inscrições de professor
-- Notificações
-- Versionamento da aplicação
+### Usuário Comum
 
-## Instalação
+Representa a identidade base da pessoa no sistema. A partir dessa identidade, o usuário pode evoluir para papéis acadêmicos específicos no domínio.
 
-Se usar `nvm`:
+### Aluno
 
-```bash
-nvm use
-```
+Representa o usuário que já possui identidade acadêmica de estudante. No código atual, `Aluno` é uma entidade própria ligada a `Usuario`, e é ela que participa de matrículas e vínculos com turmas.
 
-Instale as dependências do repositório e do backend:
+### Professor
 
-```bash
-npm ci
-npm ci --prefix server
-```
+Representa o usuário que atua academicamente como docente. No código atual, `Professor` também é uma entidade própria ligada a `Usuario`, e se relaciona com disciplinas e inscrições docentes.
 
-## Execução
+## Entidades Principais
 
-Para subir a stack completa de desenvolvimento:
+### Usuario
 
-```bash
-cd server
-docker compose up -d --build
-```
+Entidade que concentra os dados cadastrais base da pessoa:
 
-Para rodar apenas o backend fora do Docker, você precisa ter PostgreSQL, Redis e RabbitMQ acessíveis pelas variáveis de ambiente:
+- nome
+- email
+- senha
+- CPF
+- telefone
+- data de nascimento
+- endereço
+- indicador administrativo
 
-```bash
-npm run build
-npm --prefix server run start:dev
-```
+Ela é a porta de entrada para a identidade institucional, mas autenticação e autorização ainda não estão fechadas como módulo funcional completo na API.
 
-## Variáveis Relevantes
+### Aluno
 
-- `DATABASE_URL`: conexão do Prisma com PostgreSQL.
-- `NODE_ENV`: `development`, `test` ou `production`.
-- `BUILD_DATE`: opcional. Se ausente, a aplicação gera a data no bootstrap do módulo de versão.
-- `PORT`: porta HTTP do gateway.
-- `REDIS_HOST`: host do Redis.
-- `REDIS_PORT`: porta do Redis.
-- `REDIS_URL`: alternativa ao uso de `REDIS_HOST` e `REDIS_PORT`.
-- `RABBITMQ_URL`: conexão AMQP usada por health checks, mensageria e notificações.
-- `SERVICE_NAME`: nome exposto para logs e observabilidade.
-- `LOG_LEVEL`: nível de log (`trace`, `debug`, `info`, `warn`, `error`, `fatal`).
-- `EXTERNAL_SERVICES`: lista opcional de serviços externos monitorados no health check.
+Representa a identidade acadêmica do estudante. É vinculado a um `Usuario` e possui `numeroMatricula`, além de relacionamentos com:
 
-## Endpoints Úteis
+- `Matricula`
+- `AlunoTurma`
 
-Com a stack padrão em Docker:
+### Professor
 
-- Gateway HTTP: `http://localhost:3001`
-- Swagger: `http://localhost:3001/docs`
-- Health check: `http://localhost:3001/health`
-- Métricas Prometheus: `http://localhost:3001/metrics`
-- Endpoint de versão: `http://localhost:3001/api/v1/version`
-- RabbitMQ Management: `http://localhost:15672`
-- pgAdmin: `http://localhost:8080`
-- Prometheus: `http://localhost:9090`
-- Grafana: `http://localhost:3002`
+Representa a identidade acadêmica do docente. É vinculado a um `Usuario` e pode se relacionar com:
 
-Resposta esperada em `GET /api/v1/version`:
+- `Disciplina`
+- `InscricaoProfessor`
 
-```json
-{
-  "version": "0.1.0",
-  "environment": "development",
-  "buildDate": "2026-01-01T00:00:00.000Z"
-}
-```
+### Curso
 
-## Testes
+É a unidade de organização curricular. Um curso agrupa disciplinas e recebe matrículas de alunos.
 
-```bash
-npm run test
-npm run test:e2e
-npm run test:cov
-```
+### Disciplina
 
-A meta configurada é `>= 70%` de cobertura global para o escopo analisado em Jest e SonarCloud.
+É o componente curricular do curso. No modelo atual, cada disciplina:
 
-## Lint e Qualidade
+- pertence a um curso
+- pode ter um professor responsável
+- pode ter várias turmas
+- pode receber inscrições de professor
 
-```bash
-npm run lint
-npm run lint:fix
-```
+### Turma
 
-O ESLint roda em `server/`. A pipeline falha se lint, build, testes unitários, testes de integração ou cobertura falharem.
+É a oferta operacional de uma disciplina. Possui código próprio, quantidade de vagas e relação com alunos por meio da entidade `AlunoTurma`.
 
-## Conventional Commits e Husky
+### Matricula
 
-Commits devem seguir Conventional Commits, por exemplo:
+Representa o vínculo entre `Aluno` e `Curso`. É uma entidade central do fluxo acadêmico e possui os estados:
 
-```text
-feat: adiciona endpoint de versão
-fix: corrige healthcheck do gateway
-chore: atualiza runtime para node 22
-```
+- `pendente`
+- `ativa`
+- `em_fila`
+- `recusada`
 
-Arquivos de automação:
+### AlunoTurma
 
-- `commitlint.config.js`
-- `.husky/commit-msg`
+Representa o vínculo operacional entre aluno e turma. No estado atual do projeto, esse vínculo existe como módulo próprio, separado da matrícula.
 
-Após instalar dependências, execute:
+### InscricaoProfessor
 
-```bash
-npm run prepare
-```
+Representa a solicitação ou vínculo de atuação docente em uma disciplina. Possui os estados:
 
-## Versionamento Semântico
+- `pendente`
+- `aprovada`
+- `recusada`
 
-O projeto usa `standard-version` para:
+## Value Objects Conceituais
 
-- versionar `package.json`
-- gerar `CHANGELOG.md`
-- criar tags semânticas como `v0.1.0`
+Mesmo que parte deles esteja hoje materializada diretamente como campos no banco, o domínio continua sugerindo alguns objetos de valor importantes:
 
-Comandos:
+- `Endereco`: rua, número, cidade, estado, CEP e complemento
+- `StatusMatricula`: pendente, ativa, em_fila, recusada
+- `StatusInscricaoProfessor`: pendente, aprovada, recusada
 
-```bash
-npm run release:first
-npm run release
-```
+## Bounded Contexts
 
-## Git Flow
+### Contexto de Identidade e Cadastro
 
-Branches oficiais:
+Esse contexto organiza a existência institucional das pessoas dentro do sistema. Ele começa em `Usuario` e se desdobra em representações acadêmicas próprias, como `Aluno` e `Professor`.
 
-- `main`: produção
-- `develop`: integração
-- `feature/*`: novas funcionalidades
-- `hotfix/*`: correções urgentes
-- `release/*`: preparação de versão
+Sua responsabilidade é separar:
 
-## CI/CD
+- a identidade civil e cadastral da pessoa
+- a sua função acadêmica
+- a sua eventual capacidade administrativa
 
-Workflow: `.github/workflows/ci.yml`
+Na prática, esse contexto sustenta todo o resto do sistema, porque matrícula, vínculo em turma e inscrição docente dependem primeiro da existência do usuário e, depois, da sua projeção acadêmica.
 
-Etapas executadas:
+### Contexto de Catálogo Acadêmico
 
-1. Instala dependências do repositório
-2. Instala dependências do backend
-3. Executa lint
-4. Executa build
-5. Executa testes unitários
-6. Executa testes de integração
-7. Gera cobertura
-8. Executa análise no SonarCloud quando `SONAR_TOKEN` está configurado
+Esse contexto representa a estrutura da oferta da instituição. Ele é formado principalmente por `Curso`, `Disciplina` e `Turma`.
 
-A pipeline está fixada em Node 22.
+Seu papel é responder:
 
-## SonarCloud
+- quais cursos existem
+- quais disciplinas pertencem a cada curso
+- quais turmas estão abertas para cada disciplina
+- quantas vagas operacionais cada turma possui
 
-Arquivo base: `sonar-project.properties`
+Como a regra atual não trabalha com semestres, o catálogo está modelado de forma mais direta: o curso concentra suas disciplinas, e as turmas representam a operacionalização dessa oferta.
 
-Configurar no GitHub:
+### Contexto de Vida Acadêmica
 
-- Secret `SONAR_TOKEN`
+Esse é o contexto onde o aluno de fato passa a existir como participante da operação acadêmica. Ele é formado por `Matricula` e `AlunoTurma`.
+
+`Matricula` responde pelo vínculo do aluno com o curso. `AlunoTurma` responde pela associação do aluno a uma turma específica.
+
+Essa separação é importante porque o código atual distingue duas camadas de operação:
+
+- a decisão de matrícula no curso
+- a distribuição do aluno em turma
+
+Isso mantém o modelo mais explícito e evita que o vínculo com turma fique implícito dentro da matrícula.
+
+### Contexto de Alocação Docente
+
+Esse contexto é centrado em `InscricaoProfessor` e trata o interesse do usuário em atuar como professor em uma disciplina.
+
+No backend atual, já existe uma regra objetiva: uma disciplina não aceita nova inscrição aprovada se ela já possui professor responsável ou se já existe outra inscrição aprovada para a mesma disciplina.
+
+Esse contexto, portanto, controla:
+
+- solicitação de atuação docente
+- aprovação ou recusa da inscrição
+- prevenção de duplicidade de ocupação da disciplina
+
+### Contexto de Plataforma
+
+Esse contexto não é de negócio puro, mas sustenta o comportamento do sistema como produto executável. Ele reúne capacidades já presentes no projeto:
+
+- observabilidade
+- resiliência
+- cache
+- versionamento
+- comunicação em tempo real
+- mensageria
+
+Essas capacidades estão detalhadas tecnicamente em [server/README.md](server/README.md), mas já fazem parte do desenho atual do sistema.
+
+## Fluxo do Domínio
+
+### 1. Entrada do Usuário no Sistema
+
+O ponto de partida é o cadastro de `Usuario`. O modelo de dados já contempla senha e indicador administrativo. Isso mostra que o sistema está preparado para diferenciar usuários comuns e usuários com papel de gestão.
+
+No entanto, o código atual ainda não entrega um fluxo completo de autenticação e login como módulo dedicado. Por isso, a leitura correta hoje é:
+
+- o cadastro base existe no domínio
+- a ideia de login existe como direção do produto
+- a autenticação propriamente dita ainda não está concluída na aplicação
+
+### 2. Evolução para Aluno
+
+Depois da existência do usuário, o domínio permite a criação da identidade `Aluno`, que é separada da identidade civil e recebe `numeroMatricula`.
+
+No seu fluxo funcional desejado, esse usuário poderia solicitar entrada em um ou mais cursos. O backend atual já suporta o núcleo desse processo através da entidade `Matricula`, inclusive com os estados `pendente`, `ativa`, `em_fila` e `recusada`.
+
+Isso significa que o sistema já comporta a ideia de:
+
+- pedido em análise
+- pedido aceito
+- pedido em fila
+- pedido recusado
+
+Também já existe restrição de unicidade por `alunoId` e `cursoId`, então o mesmo aluno não pode abrir matrículas duplicadas para o mesmo curso. Em compensação, ele pode ter matrículas em cursos diferentes.
+
+### 3. Aprovação, Fila e Recusa de Matrícula
+
+No comportamento de domínio esperado:
+
+- quando houver vaga e aceitação institucional, a matrícula se torna `ativa`
+- quando não houver vaga, ela pode permanecer `em_fila`
+- quando negada, ela fica `recusada`
+
+Esse vocabulário já está presente no código.
+
+O que ainda não está automatizado no backend atual é o passo narrativo de "ao ser aprovado, o aluno entra automaticamente na primeira turma disponível". Hoje, a distribuição em turma existe como operação separada no módulo `AlunoTurma`. Isso deixa o projeto em um estágio mais explícito:
+
+- a matrícula aprova o vínculo com o curso
+- o vínculo com a turma ainda é operado separadamente
+
+### 4. Oferta de Conteúdo Acadêmico
+
+Cada curso possui disciplinas associadas, e cada disciplina pode originar turmas. Como o projeto hoje não aplica semestralização, a leitura do domínio continua simples:
+
+- o curso define a estrutura curricular
+- a disciplina define o componente do curso
+- a turma define a oferta operacional daquela disciplina
+
+Isso está condizente com a modelagem do banco e com os módulos já existentes.
+
+### 5. Evolução para Professor
+
+Do lado docente, o usuário pode se desdobrar na entidade `Professor` e também pode registrar interesse de atuação por meio de `InscricaoProfessor`.
+
+O backend atual já implementa a parte essencial desse fluxo:
+
+- a inscrição nasce, por padrão, como `pendente`
+- ela pode ser `aprovada` ou `recusada`
+- uma disciplina não pode receber uma nova inscrição aprovada se já estiver ocupada
+
+Essa regra está alinhada com a ideia de evitar que dois professores sejam aprovados para a mesma disciplina quando já há responsável definido.
+
+## O Que Já Está Condizente com o Código
+
+- cadastro de usuários, alunos, professores, cursos, disciplinas, turmas, matrículas e inscrições docentes
+- estados explícitos de matrícula e inscrição de professor
+- separação entre matrícula em curso e vínculo com turma
+- restrição de unicidade para evitar duplicidades importantes
+- estrutura de administração representada pelo campo `isAdmin`
+- preparação técnica para Swagger, cache, resiliência, mensageria, observabilidade e realtime
+
+## O Que Ainda É Evolução Natural do Produto
+
+- autenticação e login completos
+- aprovação administrativa formal com fluxo dedicado
+- vinculação automática do aluno à primeira turma disponível após ativação da matrícula
+- módulos de aulas, avaliações e frequência
+- regras pedagógicas mais profundas
+
+## Capacidades Técnicas Já Presentes
+
+Mesmo que parte delas não seja protagonista do domínio neste momento, o sistema já dispõe de:
+
+- API Gateway HTTP
+- microserviços TCP por domínio
+- cache com Redis e fallback em memória
+- observabilidade com logs, health check, métricas, Prometheus e Grafana
+- resiliência com retry, timeout, circuit breaker e bulkhead
+- mensageria com RabbitMQ
+- eventos em tempo real via WebSocket
+
+Essas capacidades são descritas com mais detalhe em [server/README.md](server/README.md) e em [server/docs/observability.md](server/docs/observability.md).
