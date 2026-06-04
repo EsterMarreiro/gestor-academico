@@ -265,8 +265,24 @@ services:
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-admin123}@db:5432/${POSTGRES_DB:-gestor_academico}
       NODE_ENV: production
+      SERVICE_NAME: gestor-academico-gateway
+      LOG_LEVEL: info
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      METRICS_DEFAULT_PREFIX: gestor_academico_
+      HEALTHCHECK_EXTERNAL_TIMEOUT_MS: 2000
+      EXTERNAL_SERVICES: ${EXTERNAL_SERVICES:-}
+      RESILIENCE_RETRY_ATTEMPTS: 3
+      RESILIENCE_RETRY_INITIAL_DELAY_MS: 200
+      RESILIENCE_RETRY_MAX_DELAY_MS: 3000
+      RESILIENCE_TIMEOUT_MS: 2500
+      RESILIENCE_RPC_TIMEOUT_MS: 10000
+      RESILIENCE_EXTERNAL_HTTP_TIMEOUT_MS: 5000
+      RESILIENCE_CIRCUIT_BREAKER_THRESHOLD: 5
+      RESILIENCE_CIRCUIT_BREAKER_HALF_OPEN_AFTER_MS: 15000
+      RESILIENCE_CIRCUIT_BREAKER_TIMEOUT_MS: 12000
+      RESILIENCE_BULKHEAD_LIMIT: 50
+      RESILIENCE_BULKHEAD_QUEUE_LIMIT: 100
       USERS_MS_HOST: usuarios-ms
       USERS_MS_PORT: 4001
       TURMAS_MS_HOST: turmas-ms
@@ -313,10 +329,44 @@ services:
         condition: service_started
     restart: unless-stopped
     healthcheck:
-      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:3000/health >/dev/null 2>&1 || exit 1']
+      test:
+        [
+          'CMD-SHELL',
+          'wget -qO- http://127.0.0.1:3000/health >/dev/null 2>&1 || exit 1',
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
+
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: gestor-academico-prometheus-prod
+    ports:
+      - '${PROMETHEUS_PORT:-9090}:9090'
+    volumes:
+      - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      gateway:
+        condition: service_healthy
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.2.0
+    container_name: gestor-academico-grafana-prod
+    ports:
+      - '${GRAFANA_PORT:-3002}:3000'
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+    volumes:
+      - ./observability/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./observability/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      prometheus:
+        condition: service_started
+    restart: unless-stopped
 
   db:
     image: postgres:16-alpine
@@ -329,7 +379,11 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-admin} -d ${POSTGRES_DB:-gestor_academico}']
+      test:
+        [
+          'CMD-SHELL',
+          'pg_isready -U ${POSTGRES_USER:-admin} -d ${POSTGRES_DB:-gestor_academico}',
+        ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -338,3 +392,4 @@ services:
 volumes:
   postgres_data:
   rabbitmq_data:
+  grafana_data:
