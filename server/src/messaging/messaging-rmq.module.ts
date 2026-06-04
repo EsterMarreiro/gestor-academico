@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { DomainEventsPublisher } from './domain-events.publisher';
 import { MatriculaEventsPublisher } from './matricula-events.publisher';
+import { RabbitMqConnectionService } from './rabbitmq-connection.service';
 import { UsuarioEventsPublisher } from './usuario-events.publisher';
 import {
   RMQ_CLIENT_MATRICULA_EVENTS,
@@ -41,11 +42,13 @@ import {
     }),
   ],
   providers: [
+    RabbitMqConnectionService,
     MatriculaEventsPublisher,
     UsuarioEventsPublisher,
     DomainEventsPublisher,
   ],
   exports: [
+    RabbitMqConnectionService,
     MatriculaEventsPublisher,
     UsuarioEventsPublisher,
     DomainEventsPublisher,

@@ -13,14 +13,15 @@ import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ALUNO_MSG } from '../contracts/microservice-patterns';
 import { CreateAlunoDto } from '../modules/aluno/dto/create-aluno.dto';
 import { UpdateAlunoDto } from '../modules/aluno/dto/update-aluno.dto';
+import { RpcResilienceService } from '../resilience/rpc-resilience.service';
 import { ALUNOS_SERVICE_TOKEN } from './gateway-tokens';
-import { sendRpc } from './microservice-rpc.helper';
 
 @ApiTags('Alunos')
 @Controller('alunos')
 export class AlunosGatewayController {
   constructor(
     @Inject(ALUNOS_SERVICE_TOKEN) private readonly alunosClient: ClientProxy,
+    private readonly rpc: RpcResilienceService,
   ) {}
 
   @ApiOperation({
@@ -41,13 +42,13 @@ export class AlunosGatewayController {
   })
   @Post()
   create(@Body() dto: CreateAlunoDto) {
-    return sendRpc(this.alunosClient, ALUNO_MSG.create, dto);
+    return this.rpc.send(this.alunosClient, ALUNO_MSG.create, dto, 'alunos-ms');
   }
 
   @ApiOperation({ summary: 'Lista alunos' })
   @Get()
   findAll() {
-    return sendRpc(this.alunosClient, ALUNO_MSG.findAll, {});
+    return this.rpc.send(this.alunosClient, ALUNO_MSG.findAll, {}, 'alunos-ms');
   }
 
   @ApiOperation({ summary: 'Obtém aluno por id' })
@@ -55,7 +56,12 @@ export class AlunosGatewayController {
   @ApiResponse({ status: 404, description: 'Aluno não encontrado' })
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return sendRpc(this.alunosClient, ALUNO_MSG.findOne, +id);
+    return this.rpc.send(
+      this.alunosClient,
+      ALUNO_MSG.findOne,
+      +id,
+      'alunos-ms',
+    );
   }
 
   @ApiOperation({ summary: 'Atualiza aluno' })
@@ -67,10 +73,15 @@ export class AlunosGatewayController {
   })
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdateAlunoDto) {
-    return sendRpc(this.alunosClient, ALUNO_MSG.update, {
-      id: +id,
-      dto,
-    });
+    return this.rpc.send(
+      this.alunosClient,
+      ALUNO_MSG.update,
+      {
+        id: +id,
+        dto,
+      },
+      'alunos-ms',
+    );
   }
 
   @ApiOperation({ summary: 'Remove aluno' })
@@ -78,6 +89,6 @@ export class AlunosGatewayController {
   @ApiResponse({ status: 404, description: 'Aluno não encontrado' })
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return sendRpc(this.alunosClient, ALUNO_MSG.remove, +id);
+    return this.rpc.send(this.alunosClient, ALUNO_MSG.remove, +id, 'alunos-ms');
   }
 }

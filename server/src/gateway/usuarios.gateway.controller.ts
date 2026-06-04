@@ -13,14 +13,15 @@ import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { USER_MSG } from '../contracts/microservice-patterns';
 import { CreateUsuarioDto } from '../modules/usuarios/dto/create-usuario.dto';
 import { UpdateUsuarioDto } from '../modules/usuarios/dto/update-usuario.dto';
+import { RpcResilienceService } from '../resilience/rpc-resilience.service';
 import { USERS_SERVICE_TOKEN } from './gateway-tokens';
-import { sendRpc } from './microservice-rpc.helper';
 
 @ApiTags('Usuários')
 @Controller('users')
 export class UsuariosGatewayController {
   constructor(
     @Inject(USERS_SERVICE_TOKEN) private readonly usersClient: ClientProxy,
+    private readonly rpc: RpcResilienceService,
   ) {}
 
   @ApiOperation({
@@ -31,7 +32,12 @@ export class UsuariosGatewayController {
   @ApiResponse({ status: 400, description: 'Dados inválidos' })
   @Post()
   create(@Body() createUsuarioDto: CreateUsuarioDto) {
-    return sendRpc(this.usersClient, USER_MSG.create, createUsuarioDto);
+    return this.rpc.send(
+      this.usersClient,
+      USER_MSG.create,
+      createUsuarioDto,
+      'usuarios-ms',
+    );
   }
 
   @ApiOperation({
@@ -44,7 +50,7 @@ export class UsuariosGatewayController {
   })
   @Get()
   findAll() {
-    return sendRpc(this.usersClient, USER_MSG.findAll, {});
+    return this.rpc.send(this.usersClient, USER_MSG.findAll, {}, 'usuarios-ms');
   }
 
   @ApiOperation({
@@ -60,7 +66,12 @@ export class UsuariosGatewayController {
   })
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return sendRpc(this.usersClient, USER_MSG.findOne, +id);
+    return this.rpc.send(
+      this.usersClient,
+      USER_MSG.findOne,
+      +id,
+      'usuarios-ms',
+    );
   }
 
   @ApiOperation({
@@ -79,10 +90,15 @@ export class UsuariosGatewayController {
   })
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUsuarioDto: UpdateUsuarioDto) {
-    return sendRpc(this.usersClient, USER_MSG.update, {
-      id: +id,
-      dto: updateUsuarioDto,
-    });
+    return this.rpc.send(
+      this.usersClient,
+      USER_MSG.update,
+      {
+        id: +id,
+        dto: updateUsuarioDto,
+      },
+      'usuarios-ms',
+    );
   }
 
   @ApiOperation({
@@ -98,6 +114,6 @@ export class UsuariosGatewayController {
   })
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return sendRpc(this.usersClient, USER_MSG.remove, +id);
+    return this.rpc.send(this.usersClient, USER_MSG.remove, +id, 'usuarios-ms');
   }
 }

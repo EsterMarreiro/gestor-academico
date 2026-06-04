@@ -5,7 +5,7 @@ services:
       target: production
     container_name: gestor-academico-migrate-prod
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-admin123}@db:5432/${POSTGRES_DB:-gestor_academico}
     command: npx prisma migrate deploy
     depends_on:
       db:
@@ -15,11 +15,26 @@ services:
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: gestor-academico-rabbitmq-prod
+    ports:
+      - '5672:5672'
+      - '15672:15672'
     environment:
       RABBITMQ_DEFAULT_USER: gestor
       RABBITMQ_DEFAULT_PASS: gestor
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
     healthcheck:
       test: ['CMD', 'rabbitmq-diagnostics', '-q', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: gestor-academico-redis-prod
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -31,7 +46,7 @@ services:
       target: production
     container_name: gestor-academico-usuarios-ms-prod
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-admin123}@db:5432/${POSTGRES_DB:-gestor_academico}
       NODE_ENV: production
       USERS_MS_BIND: 0.0.0.0
       USERS_MS_PORT: 4001
@@ -54,7 +69,7 @@ services:
       target: production
     container_name: gestor-academico-turmas-ms-prod
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-admin123}@db:5432/${POSTGRES_DB:-gestor_academico}
       NODE_ENV: production
       TURMAS_MS_BIND: 0.0.0.0
       TURMAS_MS_PORT: 4002
@@ -77,7 +92,7 @@ services:
       target: production
     container_name: gestor-academico-cursos-ms-prod
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-admin123}@db:5432/${POSTGRES_DB:-gestor_academico}
       NODE_ENV: production
       CURSOS_MS_BIND: 0.0.0.0
       CURSOS_MS_PORT: 4003
@@ -100,7 +115,7 @@ services:
       target: production
     container_name: gestor-academico-disciplinas-ms-prod
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-admin123}@db:5432/${POSTGRES_DB:-gestor_academico}
       NODE_ENV: production
       DISCIPLINAS_MS_BIND: 0.0.0.0
       DISCIPLINAS_MS_PORT: 4004
@@ -123,7 +138,7 @@ services:
       target: production
     container_name: gestor-academico-matriculas-ms-prod
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-admin123}@db:5432/${POSTGRES_DB:-gestor_academico}
       NODE_ENV: production
       MATRICULAS_MS_BIND: 0.0.0.0
       MATRICULAS_MS_PORT: 4005
@@ -140,39 +155,16 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
-  matriculas-rmq-consumer:
+  notificacoes-ms:
     build:
       context: .
       target: production
-    container_name: gestor-academico-matriculas-rmq-consumer-prod
+    container_name: gestor-academico-notificacoes-ms-prod
     environment:
       NODE_ENV: production
       RABBITMQ_URL: amqp://gestor:gestor@rabbitmq:5672
-    command: ['node', 'dist/main.matriculas-rmq-consumer.js']
+    command: ['node', 'dist/main.notificacoes-ms.js']
     depends_on:
-      rabbitmq:
-        condition: service_healthy
-    restart: unless-stopped
-
-  aulas-ms:
-    build:
-      context: .
-      target: production
-    container_name: gestor-academico-aulas-ms-prod
-    environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-      NODE_ENV: production
-      AULAS_MS_BIND: 0.0.0.0
-      AULAS_MS_PORT: 4006
-      RABBITMQ_URL: amqp://gestor:gestor@rabbitmq:5672
-    expose:
-      - '4006'
-    command: ['node', 'dist/main.aulas-ms.js']
-    depends_on:
-      db:
-        condition: service_healthy
-      migrate:
-        condition: service_completed_successfully
       rabbitmq:
         condition: service_healthy
     restart: unless-stopped
@@ -183,7 +175,7 @@ services:
       target: production
     container_name: gestor-academico-alunos-ms-prod
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-admin123}@db:5432/${POSTGRES_DB:-gestor_academico}
       NODE_ENV: production
       ALUNOS_MS_BIND: 0.0.0.0
       ALUNOS_MS_PORT: 4007
@@ -206,7 +198,7 @@ services:
       target: production
     container_name: gestor-academico-professores-ms-prod
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-admin123}@db:5432/${POSTGRES_DB:-gestor_academico}
       NODE_ENV: production
       PROFESSORES_MS_BIND: 0.0.0.0
       PROFESSORES_MS_PORT: 4008
@@ -223,16 +215,75 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  alunos-turma-ms:
+    build:
+      context: .
+      target: production
+    container_name: gestor-academico-alunos-turma-ms-prod
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-admin123}@db:5432/${POSTGRES_DB:-gestor_academico}
+      NODE_ENV: production
+      ALUNOS_TURMA_MS_BIND: 0.0.0.0
+      ALUNOS_TURMA_MS_PORT: 4009
+    expose:
+      - '4009'
+    command: ['node', 'dist/main.alunos-turma-ms.js']
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  inscricoes-professor-ms:
+    build:
+      context: .
+      target: production
+    container_name: gestor-academico-inscricoes-professor-ms-prod
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-admin123}@db:5432/${POSTGRES_DB:-gestor_academico}
+      NODE_ENV: production
+      INSCRICOES_PROFESSOR_MS_BIND: 0.0.0.0
+      INSCRICOES_PROFESSOR_MS_PORT: 4010
+    expose:
+      - '4010'
+    command: ['node', 'dist/main.inscricoes-professor-ms.js']
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
   gateway:
     build:
       context: .
       target: production
     container_name: gestor-academico-app
     ports:
-      - '3000:3000'
+      - '${PORT:-3000}:3000'
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-admin123}@db:5432/${POSTGRES_DB:-gestor_academico}
       NODE_ENV: production
+      SERVICE_NAME: gestor-academico-gateway
+      LOG_LEVEL: info
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RABBITMQ_URL: amqp://gestor:gestor@rabbitmq:5672
+      METRICS_DEFAULT_PREFIX: gestor_academico_
+      HEALTHCHECK_EXTERNAL_TIMEOUT_MS: 2000
+      EXTERNAL_SERVICES: ${EXTERNAL_SERVICES:-}
+      RESILIENCE_RETRY_ATTEMPTS: 3
+      RESILIENCE_RETRY_INITIAL_DELAY_MS: 200
+      RESILIENCE_RETRY_MAX_DELAY_MS: 3000
+      RESILIENCE_TIMEOUT_MS: 2500
+      RESILIENCE_RPC_TIMEOUT_MS: 10000
+      RESILIENCE_EXTERNAL_HTTP_TIMEOUT_MS: 5000
+      RESILIENCE_CIRCUIT_BREAKER_THRESHOLD: 5
+      RESILIENCE_CIRCUIT_BREAKER_HALF_OPEN_AFTER_MS: 15000
+      RESILIENCE_CIRCUIT_BREAKER_TIMEOUT_MS: 12000
+      RESILIENCE_BULKHEAD_LIMIT: 50
+      RESILIENCE_BULKHEAD_QUEUE_LIMIT: 100
       USERS_MS_HOST: usuarios-ms
       USERS_MS_PORT: 4001
       TURMAS_MS_HOST: turmas-ms
@@ -243,15 +294,19 @@ services:
       DISCIPLINAS_MS_PORT: 4004
       MATRICULAS_MS_HOST: matriculas-ms
       MATRICULAS_MS_PORT: 4005
-      AULAS_MS_HOST: aulas-ms
-      AULAS_MS_PORT: 4006
       ALUNOS_MS_HOST: alunos-ms
       ALUNOS_MS_PORT: 4007
       PROFESSORES_MS_HOST: professores-ms
       PROFESSORES_MS_PORT: 4008
+      ALUNOS_TURMA_MS_HOST: alunos-turma-ms
+      ALUNOS_TURMA_MS_PORT: 4009
+      INSCRICOES_PROFESSOR_MS_HOST: inscricoes-professor-ms
+      INSCRICOES_PROFESSOR_MS_PORT: 4010
     command: ['node', 'dist/main.js']
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
@@ -265,11 +320,52 @@ services:
         condition: service_started
       matriculas-ms:
         condition: service_started
-      aulas-ms:
-        condition: service_started
       alunos-ms:
         condition: service_started
       professores-ms:
+        condition: service_started
+      alunos-turma-ms:
+        condition: service_started
+      inscricoes-professor-ms:
+        condition: service_started
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'wget -qO- http://127.0.0.1:3000/health >/dev/null 2>&1 || exit 1',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: gestor-academico-prometheus-prod
+    ports:
+      - '${PROMETHEUS_PORT:-9090}:9090'
+    volumes:
+      - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      gateway:
+        condition: service_healthy
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.2.0
+    container_name: gestor-academico-grafana-prod
+    ports:
+      - '${GRAFANA_PORT:-3002}:3000'
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+    volumes:
+      - ./observability/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./observability/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      prometheus:
         condition: service_started
     restart: unless-stopped
 
@@ -278,13 +374,17 @@ services:
     platform: linux/amd64
     container_name: postgres-app
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin123}
+      POSTGRES_DB: ${POSTGRES_DB:-gestor_academico}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      test:
+        [
+          'CMD-SHELL',
+          'pg_isready -U ${POSTGRES_USER:-admin} -d ${POSTGRES_DB:-gestor_academico}',
+        ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -292,3 +392,5 @@ services:
 
 volumes:
   postgres_data:
+  rabbitmq_data:
+  grafana_data:

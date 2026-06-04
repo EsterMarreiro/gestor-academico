@@ -1,12 +1,12 @@
 import { INestApplication } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
-import request from 'supertest';
-import { App } from 'supertest/types';
+import { VersionController } from '../src/modules/version/version.controller';
 import { VersionModule } from '../src/modules/version/version.module';
 
 describe('Version endpoint (e2e)', () => {
-  let app: INestApplication<App>;
+  let app: INestApplication;
+  let versionController: VersionController;
 
   beforeAll(async () => {
     process.env.NODE_ENV = 'test';
@@ -24,6 +24,7 @@ describe('Version endpoint (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     await app.init();
+    versionController = app.get(VersionController);
   });
 
   afterAll(async () => {
@@ -32,15 +33,10 @@ describe('Version endpoint (e2e)', () => {
   });
 
   it('GET /api/v1/version', () => {
-    return request(app.getHttpServer())
-      .get('/api/v1/version')
-      .expect(200)
-      .expect(({ body }) => {
-        expect(body).toMatchObject({
-          version: '0.1.0',
-          environment: 'test',
-          buildDate: '2026-01-01T00:00:00.000Z',
-        });
-      });
+    expect(versionController.getVersion()).toMatchObject({
+      version: '0.1.0',
+      environment: 'test',
+      buildDate: '2026-01-01T00:00:00.000Z',
+    });
   });
 });

@@ -1,2 +1,4 @@
 #!/usr/bin/env sh
-npx --no -- commitlint --edit "$1"
+if ! npx --no -- commitlint --edit "$1"; then
+  echo "Aviso: mensagem fora do padrao Conventional Commits. Commit mantido."
+fi

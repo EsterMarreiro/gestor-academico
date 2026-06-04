@@ -13,8 +13,9 @@ import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { MATRICULA_MSG } from '../contracts/microservice-patterns';
 import { CreateMatriculaDto } from '../modules/matricula/dto/create-matricula.dto';
 import { UpdateMatriculaDto } from '../modules/matricula/dto/update-matricula.dto';
+import { RpcResilienceService } from '../resilience/rpc-resilience.service';
+import { GatewayCacheService } from '../shared/cache/gateway-cache.service';
 import { MATRICULAS_SERVICE_TOKEN } from './gateway-tokens';
-import { sendRpc } from './microservice-rpc.helper';
 
 @ApiTags('Matrículas')
 @Controller('matricula')
@@ -22,6 +23,8 @@ export class MatriculasGatewayController {
   constructor(
     @Inject(MATRICULAS_SERVICE_TOKEN)
     private readonly matriculasClient: ClientProxy,
+    private readonly cache: GatewayCacheService,
+    private readonly rpc: RpcResilienceService,
   ) {}
 
   @ApiOperation({
@@ -31,12 +34,15 @@ export class MatriculasGatewayController {
   @ApiResponse({ status: 201, description: 'Matrícula criada com sucesso' })
   @ApiResponse({ status: 400, description: 'Dados inválidos' })
   @Post()
-  create(@Body() createMatriculaDto: CreateMatriculaDto) {
-    return sendRpc(
+  async create(@Body() createMatriculaDto: CreateMatriculaDto) {
+    const result = await this.rpc.send(
       this.matriculasClient,
       MATRICULA_MSG.create,
       createMatriculaDto,
+      'matriculas-ms',
     );
+    await this.cache.delete('gateway:matriculas:list');
+    return result;
   }
 
   @ApiOperation({
@@ -49,7 +55,14 @@ export class MatriculasGatewayController {
   })
   @Get()
   findAll() {
-    return sendRpc(this.matriculasClient, MATRICULA_MSG.findAll, {});
+    return this.cache.remember('gateway:matriculas:list', () =>
+      this.rpc.send(
+        this.matriculasClient,
+        MATRICULA_MSG.findAll,
+        {},
+        'matriculas-ms',
+      ),
+    );
   }
 
   @ApiOperation({
@@ -65,7 +78,14 @@ export class MatriculasGatewayController {
   })
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return sendRpc(this.matriculasClient, MATRICULA_MSG.findOne, +id);
+    return this.cache.remember(`gateway:matriculas:item:${id}`, () =>
+      this.rpc.send(
+        this.matriculasClient,
+        MATRICULA_MSG.findOne,
+        +id,
+        'matriculas-ms',
+      ),
+    );
   }
 
   @ApiOperation({
@@ -84,10 +104,27 @@ export class MatriculasGatewayController {
     @Param('id') id: string,
     @Body() updateMatriculaDto: UpdateMatriculaDto,
   ) {
-    return sendRpc(this.matriculasClient, MATRICULA_MSG.update, {
-      id: +id,
-      dto: updateMatriculaDto,
-    });
+    return this.updateAndInvalidate(+id, updateMatriculaDto);
+  }
+
+  private async updateAndInvalidate(
+    id: number,
+    updateMatriculaDto: UpdateMatriculaDto,
+  ) {
+    const result = await this.rpc.send(
+      this.matriculasClient,
+      MATRICULA_MSG.update,
+      {
+        id: +id,
+        dto: updateMatriculaDto,
+      },
+      'matriculas-ms',
+    );
+    await this.cache.deleteMany([
+      'gateway:matriculas:list',
+      `gateway:matriculas:item:${id}`,
+    ]);
+    return result;
   }
 
   @ApiOperation({
@@ -102,7 +139,18 @@ export class MatriculasGatewayController {
     type: Number,
   })
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return sendRpc(this.matriculasClient, MATRICULA_MSG.remove, +id);
+  async remove(@Param('id') id: string) {
+    const numericId = +id;
+    const result = await this.rpc.send(
+      this.matriculasClient,
+      MATRICULA_MSG.remove,
+      numericId,
+      'matriculas-ms',
+    );
+    await this.cache.deleteMany([
+      'gateway:matriculas:list',
+      `gateway:matriculas:item:${numericId}`,
+    ]);
+    return result;
   }
 }

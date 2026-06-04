@@ -1,98 +1,338 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Gestor Acadêmico Server
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+[![CI](https://github.com/estermarreiro/gestor-academico/actions/workflows/ci.yml/badge.svg)](https://github.com/estermarreiro/gestor-academico/actions/workflows/ci.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=EsterMarreiro_gestor-academico&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=EsterMarreiro_gestor-academico)
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Backend NestJS do Gestor Acadêmico com gateway HTTP, microserviços TCP por domínio, persistência PostgreSQL com Prisma, cache Redis, mensageria RabbitMQ, WebSocket para eventos operacionais e stack de observabilidade com Prometheus e Grafana.
 
-## Description
+## Visão Geral
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+O runtime está dividido entre:
 
-## Project setup
+- `Gateway HTTP`: entrada pública da API, documentação Swagger, health checks, métricas, cache e realtime
+- `Microserviços de domínio`: execução isolada por módulo
+- `Infraestrutura local`: PostgreSQL, Redis, RabbitMQ, Prometheus, Grafana e pgAdmin
 
-```bash
-$ npm install
+Módulos ativos:
+
+- usuários
+- alunos
+- professores
+- cursos
+- disciplinas
+- turmas
+- matrículas
+- alunos por turma
+- inscrições de professor
+- notificações
+- versionamento
+
+## Estrutura
+
+```text
+server/
+├── Dockerfile
+├── README.md
+├── docker-compose.yml
+├── docker-compose.prod.yml
+├── docs/
+│   └── observability.md
+├── observability/
+│   ├── grafana/
+│   └── prometheus/
+├── prisma/
+│   ├── migrations/
+│   └── schema.prisma
+├── src/
+│   ├── gateway/
+│   ├── messaging/
+│   ├── microservice-apps/
+│   ├── modules/
+│   ├── notifications/
+│   ├── observability/
+│   ├── realtime/
+│   ├── resilience/
+│   └── shared/
+└── test/
 ```
 
-## Compile and run the project
+## Requisitos
+
+- Node.js 22
+- npm
+- Docker
+- Docker Compose
+
+## Instalação
+
+Na raiz do repositório:
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm ci
+npm ci --prefix server
 ```
 
-## Run tests
+Se usar `nvm`:
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+nvm use
 ```
 
-## Deployment
+## Execução Local
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Para subir toda a stack:
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+cd server
+docker compose up -d --build
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Para rodar apenas o gateway:
 
-## Resources
+```bash
+npm run start:gateway:dev
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+Para rodar gateway e microserviços em processo local:
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```bash
+npm run start:dev
+```
 
-## Support
+Para gerar build:
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```bash
+npm run build
+```
 
-## Stay in touch
+## Serviços da Stack Docker
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+O ambiente local sobe:
 
-## License
+- gateway HTTP
+- microserviços de usuários, turmas, cursos, disciplinas, matrículas, alunos, professores, alunos por turma e inscrições de professor
+- microserviço de notificações
+- PostgreSQL 16
+- Redis 7
+- RabbitMQ 3 com painel de administração
+- pgAdmin 4
+- Prometheus
+- Grafana
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+## Endpoints e Interfaces
+
+- gateway: `http://localhost:3001`
+- Swagger: `http://localhost:3001/docs`
+- health: `http://localhost:3001/health`
+- metrics: `http://localhost:3001/metrics`
+- version: `http://localhost:3001/api/v1/version`
+- WebSocket namespace: `/events`
+- RabbitMQ Management: `http://localhost:15672`
+- pgAdmin: `http://localhost:8080`
+- Prometheus: `http://localhost:9090`
+- Grafana: `http://localhost:3002`
+
+## Arquitetura de Aplicação
+
+### Gateway HTTP
+
+O gateway centraliza:
+
+- entrada REST para os módulos
+- documentação Swagger
+- interceptação de logs
+- health check
+- exportação de métricas
+- cache de leitura
+- emissão de eventos realtime
+
+Ele roteia chamadas para microserviços TCP por domínio e aplica recursos transversais antes de expor a resposta ao cliente.
+
+### Microserviços de Domínio
+
+Cada contexto funcional relevante possui um bootstrap dedicado. Isso mantém isolamento por responsabilidade e prepara o projeto para crescimento operacional sem misturar todas as regras em um único processo.
+
+### Persistência
+
+O projeto usa:
+
+- PostgreSQL 16 como banco principal
+- Prisma para modelagem, acesso e migrações
+- serviço `migrate` no `docker compose` para aplicar migrações antes do gateway e dos microserviços
+
+## Observabilidade
+
+A camada de observabilidade já está ativa no código e cobre:
+
+- logging estruturado com `nestjs-pino`, `pino` e `pino-pretty`
+- correlation ID com `X-Request-Id`
+- exception logging centralizado
+- métricas Prometheus com `prom-client`
+- dashboards Grafana provisionados via arquivos em `observability/`
+- monitoramento de saúde com `@nestjs/terminus`
+
+O endpoint `/health` verifica:
+
+- aplicação
+- PostgreSQL
+- Redis
+- RabbitMQ
+- dependências externas configuradas em `EXTERNAL_SERVICES`
+
+O serviço de health também executa sondagem periódica para refletir o estado nas métricas.
+
+Documentação complementar:
+
+- [docs/observability.md](docs/observability.md)
+
+## Resiliência
+
+O backend já possui uma camada própria de resiliência em `src/resilience/`.
+
+Capacidades implementadas:
+
+- `retry` com backoff configurável
+- `timeout` para operações HTTP, RPC e integrações externas
+- `circuit breaker` para reduzir falhas em cascata
+- `bulkhead` para limitar concorrência e fila
+- tratamento de erros RPC para transformar falhas técnicas em respostas consistentes
+
+Essa camada é especialmente relevante no gateway, onde chamadas entre módulos e dependências externas precisam de proteção operacional.
+
+## Cache
+
+O cache do gateway usa `cache-manager` com suporte a Redis.
+
+Comportamento atual:
+
+- quando Redis está disponível, ele é usado como backend de cache
+- quando Redis falha ou não sobe, o sistema faz fallback para cache em memória
+- o TTL padrão configurado é de `300` segundos
+- leituras podem ser encapsuladas pelo `GatewayCacheService`
+- eventos de matrícula acionam invalidação de cache para manter consistência
+
+## Mensageria
+
+O sistema usa RabbitMQ como barramento de eventos de domínio.
+
+Uso atual no projeto:
+
+- publicação de eventos por módulos como `Matrículas` e `Turmas`
+- consumo de `MATRICULA_CRIADA_EVENT` pelo microserviço de notificações
+- consumo de eventos de matrícula no gateway para limpar cache e propagar realtime
+
+Essa abordagem deixa o núcleo transacional menor e desloca efeitos colaterais para processamento assíncrono.
+
+## Realtime
+
+O backend expõe comunicação em tempo real com `socket.io`.
+
+Uso atual:
+
+- namespace `/events`
+- emissão de eventos de matrícula criada, atualizada e removida
+- apoio a interfaces que precisem refletir alterações sem polling contínuo
+
+O adaptador WebSocket usa Redis, o que já prepara o sistema para cenários com mais de uma instância do gateway.
+
+## Regras de Negócio Relevantes Já Refletidas no Código
+
+### Matrículas
+
+- uma matrícula liga `Aluno` a `Curso`
+- o status pode ser `pendente`, `ativa`, `em_fila` ou `recusada`
+- existe unicidade por aluno e curso
+- criação, atualização e remoção disparam eventos de domínio
+
+### Inscrições de Professor
+
+- uma inscrição liga `Usuario` a `Disciplina`
+- o status pode ser `pendente`, `aprovada` ou `recusada`
+- uma disciplina não aceita nova aprovação se já tiver professor responsável
+- também não aceita nova inscrição aprovada se já existir outra inscrição aprovada para a mesma disciplina
+
+### Alunos por Turma
+
+- o vínculo entre aluno e turma é tratado em módulo próprio
+- isso separa matrícula no curso de alocação operacional em turma
+
+## Variáveis de Ambiente Relevantes
+
+### Aplicação
+
+- `DATABASE_URL`
+- `NODE_ENV`
+- `BUILD_DATE`
+- `PORT`
+- `SERVICE_NAME`
+- `LOG_LEVEL`
+
+### Redis e cache
+
+- `REDIS_HOST`
+- `REDIS_PORT`
+- `REDIS_URL`
+- `REDIS_USERNAME`
+- `REDIS_PASSWORD`
+
+### RabbitMQ
+
+- `RABBITMQ_URL`
+
+### Observabilidade
+
+- `METRICS_DEFAULT_PREFIX`
+- `EXTERNAL_SERVICES`
+- `HEALTHCHECK_EXTERNAL_TIMEOUT_MS`
+
+### Resiliência
+
+- `RESILIENCE_RETRY_ATTEMPTS`
+- `RESILIENCE_RETRY_INITIAL_DELAY_MS`
+- `RESILIENCE_RETRY_MAX_DELAY_MS`
+- `RESILIENCE_TIMEOUT_MS`
+- `RESILIENCE_RPC_TIMEOUT_MS`
+- `RESILIENCE_EXTERNAL_HTTP_TIMEOUT_MS`
+- `RESILIENCE_CIRCUIT_BREAKER_THRESHOLD`
+- `RESILIENCE_CIRCUIT_BREAKER_HALF_OPEN_AFTER_MS`
+- `RESILIENCE_CIRCUIT_BREAKER_TIMEOUT_MS`
+- `RESILIENCE_BULKHEAD_LIMIT`
+- `RESILIENCE_BULKHEAD_QUEUE_LIMIT`
+
+### WebSocket
+
+- `WS_CORS_ORIGIN`
+
+## Testes e Qualidade
+
+Scripts principais:
+
+```bash
+npm run lint
+npm run lint:fix
+npm run test
+npm run test:e2e
+npm run test:cov
+```
+
+Cobertura global mínima configurada:
+
+- `branches >= 70%`
+- `functions >= 70%`
+- `lines >= 70%`
+- `statements >= 70%`
+
+## Versionamento e Pipeline
+
+- Conventional Commits com `commitlint`
+- hooks com `husky`
+- versionamento semântico com `standard-version`
+- workflow CI em `.github/workflows/ci.yml`
+- análise de qualidade com SonarCloud
+
+Comandos de release:
+
+```bash
+npm run release:first
+npm run release
+```

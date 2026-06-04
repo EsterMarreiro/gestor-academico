@@ -1,19 +1,31 @@
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { Logger, LoggerErrorInterceptor } from 'nestjs-pino';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { RedisIoAdapter } from './shared/redis-io.adapter';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true,
+  });
+  app.useLogger(app.get(Logger));
   app.enableShutdownHooks();
+  app.useGlobalInterceptors(new LoggerErrorInterceptor());
   app.useWebSocketAdapter(new RedisIoAdapter(app));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+    }),
+  );
 
   const configSwagger = new DocumentBuilder()
     .setTitle('Gestão Acadêmica Simplificada')
     .setDescription(
       'Gateway HTTP público da API acadêmica. Usuários, turmas, cursos, ' +
-        'disciplinas, matrículas, aulas, alunos e professores são roteados para microserviços por TCP (/users, ' +
-        '/turmas, /cursos, /disciplina, /matricula, /aula, /alunos e /professores).',
+        'disciplinas, matrículas, alunos, professores, vínculos aluno-turma e inscrições de professor ' +
+        'são expostos por REST e roteados para microserviços TCP.',
     )
     .setVersion('1.0')
     .addTag('Usuários')
@@ -21,12 +33,10 @@ async function bootstrap() {
     .addTag('Disciplinas')
     .addTag('Turmas')
     .addTag('Matrículas')
-    .addTag('Aulas')
     .addTag('Alunos')
     .addTag('Professores')
-    .addTag('Presenças')
-    .addTag('Avaliações')
-    .addTag('Notificações')
+    .addTag('AlunoTurma')
+    .addTag('InscricoesProfessor')
     .addBearerAuth()
     .build();
 

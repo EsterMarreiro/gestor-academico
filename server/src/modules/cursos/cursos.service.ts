@@ -4,8 +4,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { CreateCursosDto } from './dto/create-cursos.dto';
-import { UpdateCursosDto } from './dto/update-cursos.dto';
+import { CreateCursoDto } from './dto/create-curso.dto';
+import { UpdateCursoDto } from './dto/update-curso.dto';
 import {
   CURSO_ATUALIZADO_EVENT,
   CURSO_CRIADO_EVENT,
@@ -28,10 +28,10 @@ export class CursosService {
     throw e;
   }
 
-  async create(createCursosDto: CreateCursosDto) {
+  async create(createCursoDto: CreateCursoDto) {
     const data: Prisma.CursoCreateInput = {
-      nome: createCursosDto.nome,
-      descricao: createCursosDto.descricao ?? null,
+      nome: createCursoDto.nome,
+      descricao: createCursoDto.descricao ?? null,
     };
     try {
       const created = await this.prisma.curso.create({ data });
@@ -61,11 +61,11 @@ export class CursosService {
     return curso;
   }
 
-  async update(id: number, updateCursosDto: UpdateCursosDto) {
+  async update(id: number, updateCursoDto: UpdateCursoDto) {
     await this.findOne(id);
 
     const data: Prisma.CursoUpdateInput = {};
-    const d = updateCursosDto;
+    const d = updateCursoDto;
     if (d.nome !== undefined) data.nome = d.nome;
     if (d.descricao !== undefined) data.descricao = d.descricao ?? null;
 

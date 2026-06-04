@@ -3,9 +3,11 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MatriculasGatewayController } from './matriculas.gateway.controller';
 import { MATRICULAS_SERVICE_TOKEN } from './gateway-tokens';
+import { CacheConfigurationModule } from '../shared/cache/cache.module';
 
 @Module({
   imports: [
+    CacheConfigurationModule,
     ClientsModule.registerAsync([
       {
         name: MATRICULAS_SERVICE_TOKEN,

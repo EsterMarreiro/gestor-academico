@@ -172,8 +172,8 @@ describe('Matricula CQRS handlers', () => {
     expect(result).toEqual([matriculaMock]);
   });
 
-  it('created event handler publishes RMQ event', () => {
-    createdEventHandler.handle(new MatriculaCreatedEvent(matriculaMock));
+  it('created event handler publishes RMQ event', async () => {
+    await createdEventHandler.handle(new MatriculaCreatedEvent(matriculaMock));
 
     expect(matriculaEvents.publishMatriculaCriada).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -185,8 +185,8 @@ describe('Matricula CQRS handlers', () => {
     );
   });
 
-  it('updated event handler publishes RMQ event', () => {
-    updatedEventHandler.handle(new MatriculaUpdatedEvent(matriculaMock));
+  it('updated event handler publishes RMQ event', async () => {
+    await updatedEventHandler.handle(new MatriculaUpdatedEvent(matriculaMock));
 
     expect(matriculaEvents.publishMatriculaAtualizada).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -198,8 +198,8 @@ describe('Matricula CQRS handlers', () => {
     );
   });
 
-  it('removed event handler publishes RMQ event', () => {
-    removedEventHandler.handle(new MatriculaRemovedEvent(matriculaMock));
+  it('removed event handler publishes RMQ event', async () => {
+    await removedEventHandler.handle(new MatriculaRemovedEvent(matriculaMock));
 
     expect(matriculaEvents.publishMatriculaRemovida).toHaveBeenCalledWith(1);
   });

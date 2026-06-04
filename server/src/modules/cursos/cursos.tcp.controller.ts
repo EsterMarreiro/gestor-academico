@@ -2,8 +2,8 @@ import { Controller } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { CURSO_MSG } from '../../contracts/microservice-patterns';
-import { CreateCursosDto } from './dto/create-cursos.dto';
-import { UpdateCursosDto } from './dto/update-cursos.dto';
+import { CreateCursoDto } from './dto/create-curso.dto';
+import { UpdateCursoDto } from './dto/update-curso.dto';
 import {
   CreateCursoCommand,
   GetCursoByIdQuery,
@@ -20,7 +20,7 @@ export class CursosTcpController {
   ) {}
 
   @MessagePattern(CURSO_MSG.create)
-  create(@Payload() dto: CreateCursosDto) {
+  create(@Payload() dto: CreateCursoDto) {
     return this.commandBus.execute(new CreateCursoCommand(dto));
   }
 
@@ -35,7 +35,7 @@ export class CursosTcpController {
   }
 
   @MessagePattern(CURSO_MSG.update)
-  update(@Payload() payload: { id: number; dto: UpdateCursosDto }) {
+  update(@Payload() payload: { id: number; dto: UpdateCursoDto }) {
     return this.commandBus.execute(
       new UpdateCursoCommand(payload.id, payload.dto),
     );

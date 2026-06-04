@@ -9,8 +9,8 @@ export class MatriculaUpdatedHandler implements IEventHandler<MatriculaUpdatedEv
 
   constructor(private readonly matriculaEvents: MatriculaEventsPublisher) {}
 
-  handle(event: MatriculaUpdatedEvent) {
-    this.matriculaEvents.publishMatriculaAtualizada({
+  async handle(event: MatriculaUpdatedEvent) {
+    await this.matriculaEvents.publishMatriculaAtualizada({
       id: event.matricula.id,
       alunoId: event.matricula.alunoId,
       cursoId: event.matricula.cursoId,
